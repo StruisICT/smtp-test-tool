@@ -117,12 +117,23 @@ enum Tab { Servers, Send, Tls, Advanced }
 
 impl App {
     fn new(sink: Arc<LogSink>, cc: &eframe::CreationContext<'_>) -> Self {
-        // OS theme follow
-        match dark_light::detect() {
-            dark_light::Mode::Dark    => cc.egui_ctx.set_visuals(egui::Visuals::dark()),
-            dark_light::Mode::Light   => cc.egui_ctx.set_visuals(egui::Visuals::light()),
-            dark_light::Mode::Default => cc.egui_ctx.set_visuals(egui::Visuals::dark()),
-        }
+        // OS theme follow (rule #4: always dark/light, all OS).
+        // dark-light 2.x returns Result<Mode, Error> and dropped Mode::Default;
+        // if detection fails (rare; container, no display server, ...) we log
+        // a warning and fall back to dark (the dominant terminal default).
+        let visuals = match dark_light::detect() {
+            Ok(dark_light::Mode::Dark)        => egui::Visuals::dark(),
+            Ok(dark_light::Mode::Light)       => egui::Visuals::light(),
+            Ok(dark_light::Mode::Unspecified) => {
+                tracing::info!("OS did not advertise a colour scheme; defaulting to dark");
+                egui::Visuals::dark()
+            }
+            Err(e) => {
+                tracing::warn!("OS theme detection failed ({e}); defaulting to dark");
+                egui::Visuals::dark()
+            }
+        };
+        cc.egui_ctx.set_visuals(visuals);
 
         let cfg_path = discover_config_path();
         let cfg = cfg_path
