@@ -1,0 +1,8 @@
+# Toolchain pin for reproducible local builds.
+# CI uses dtolnay/rust-toolchain@stable separately so it always tracks
+# the current stable; this file gives contributors a deterministic
+# `rustup`-installed toolchain on first `cargo` invocation.
+[toolchain]
+channel    = "stable"
+components = ["rustfmt", "clippy"]
+profile    = "minimal"

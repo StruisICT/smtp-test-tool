@@ -76,7 +76,9 @@ pub fn run(p: &Profile) -> Result<bool> {
         .timeout(Some(Duration::from_secs(p.timeout_secs)));
 
     if let Some(ehlo) = &p.ehlo_name {
-        builder = builder.hello_name(lettre::transport::smtp::extension::ClientId::Domain(ehlo.clone()));
+        builder = builder.hello_name(lettre::transport::smtp::extension::ClientId::Domain(
+            ehlo.clone(),
+        ));
     }
 
     // ----- credentials ------------------------------------------------
@@ -90,7 +92,10 @@ pub fn run(p: &Profile) -> Result<bool> {
             AuthMech::XOauth2 => vec![Mechanism::Xoauth2],
         };
         builder = builder.authentication(mech);
-        info!("Configured SMTP AUTH as {user} (mech={})", p.auth_mech.as_str());
+        info!(
+            "Configured SMTP AUTH as {user} (mech={})",
+            p.auth_mech.as_str()
+        );
     } else if let Some(token) = p.oauth_token.as_ref() {
         // XOAUTH2: lettre accepts the bearer token in the password field.
         let user = p.user.clone().unwrap_or_default();
@@ -147,11 +152,17 @@ pub fn run(p: &Profile) -> Result<bool> {
 }
 
 fn build_message(p: &Profile) -> Result<Message> {
-    let header_from = p.from_addr.clone()
+    let header_from = p
+        .from_addr
+        .clone()
         .or_else(|| p.mail_from.clone())
         .or_else(|| p.user.clone())
         .ok_or_else(|| anyhow!("no From: address (set 'from_addr', 'mail_from', or 'user')"))?;
-    let envelope_from = p.mail_from.clone().or_else(|| p.user.clone()).unwrap_or(header_from.clone());
+    let envelope_from = p
+        .mail_from
+        .clone()
+        .or_else(|| p.user.clone())
+        .unwrap_or(header_from.clone());
 
     let to_addrs: Vec<String> = if p.to.is_empty() {
         // default: send to ourselves so the test is harmless.

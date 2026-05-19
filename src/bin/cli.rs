@@ -10,9 +10,13 @@ use std::process::ExitCode;
 use tracing_subscriber::EnvFilter;
 
 #[derive(Parser, Debug)]
-#[command(name = "smtp-test-tool", version, about,
-          long_about = "Test SMTP / IMAP / POP3 connectivity to any mail server.\n\
-                        Defaults to Outlook.com / Office 365.")]
+#[command(
+    name = "smtp-test-tool",
+    version,
+    about,
+    long_about = "Test SMTP / IMAP / POP3 connectivity to any mail server.\n\
+                        Defaults to Outlook.com / Office 365."
+)]
 struct Cli {
     /// TOML config file to load.
     #[arg(short, long, env = "SMTP_TEST_TOOL_CONFIG")]
@@ -77,8 +81,7 @@ fn run() -> Result<bool> {
 
     // ---- logging --------------------------------------------------------
     let lvl = cli.log_level.clone().unwrap_or_else(|| "info".into());
-    let filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new(&lvl));
+    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(&lvl));
     tracing_subscriber::fmt()
         .with_env_filter(filter)
         .with_target(false)
@@ -90,18 +93,16 @@ fn run() -> Result<bool> {
     // ---- locate config --------------------------------------------------
     let cfg_path = cli.config.clone().or_else(discover_config_path);
     let cfg = match &cfg_path {
-        Some(p) => Config::load(p)
-            .with_context(|| format!("loading {}", p.display()))?,
+        Some(p) => Config::load(p).with_context(|| format!("loading {}", p.display()))?,
         None => Config {
             active: "default".into(),
-            profiles: [("default".into(), outlook_defaults())].into_iter().collect(),
+            profiles: [("default".into(), outlook_defaults())]
+                .into_iter()
+                .collect(),
         },
     };
 
-    let profile_name = cli
-        .profile
-        .clone()
-        .unwrap_or_else(|| cfg.active.clone());
+    let profile_name = cli.profile.clone().unwrap_or_else(|| cfg.active.clone());
 
     match cli.cmd.unwrap_or(Cmd::Test) {
         Cmd::Profiles => {
@@ -115,7 +116,10 @@ fn run() -> Result<bool> {
             return Ok(true);
         }
         Cmd::Init { output } => {
-            let mut new_cfg = Config { active: "default".into(), profiles: Default::default() };
+            let mut new_cfg = Config {
+                active: "default".into(),
+                profiles: Default::default(),
+            };
             new_cfg.upsert_profile("default", outlook_defaults());
             let target = output.unwrap_or_else(default_save_path);
             new_cfg.save(&target)?;
@@ -130,10 +134,18 @@ fn run() -> Result<bool> {
         .profile(&profile_name)
         .cloned()
         .unwrap_or_else(outlook_defaults);
-    if let Some(u) = cli.user { profile.user = Some(u); }
-    if let Some(p) = cli.password { profile.password = Some(p); }
-    if let Some(t) = cli.oauth_token { profile.oauth_token = Some(t); }
-    if cli.insecure { profile.insecure_tls = true; }
+    if let Some(u) = cli.user {
+        profile.user = Some(u);
+    }
+    if let Some(p) = cli.password {
+        profile.password = Some(p);
+    }
+    if let Some(t) = cli.oauth_token {
+        profile.oauth_token = Some(t);
+    }
+    if cli.insecure {
+        profile.insecure_tls = true;
+    }
 
     if profile.user.is_none() {
         profile.user = Some(prompt("Username / email: ")?);

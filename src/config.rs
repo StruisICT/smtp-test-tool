@@ -26,7 +26,9 @@ pub struct Config {
     pub profiles: BTreeMap<String, Profile>,
 }
 
-fn default_active() -> String { "default".into() }
+fn default_active() -> String {
+    "default".into()
+}
 
 /// All testable settings.  This is what gets serialised to TOML and what
 /// the GUI/CLI render and edit.
@@ -36,8 +38,13 @@ pub struct Profile {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
     /// Stored base64 (NOT encryption!) - users opt in via --save-password.
-    #[serde(default, rename = "password_b64", skip_serializing_if = "Option::is_none",
-            serialize_with = "ser_b64", deserialize_with = "de_b64")]
+    #[serde(
+        default,
+        rename = "password_b64",
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "ser_b64",
+        deserialize_with = "de_b64"
+    )]
     pub password: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub oauth_token: Option<String>,
@@ -104,16 +111,32 @@ pub struct Profile {
     pub theme: String,
 }
 
-fn yes() -> bool { true }
-fn inbox() -> String { "INBOX".into() }
-fn default_subject() -> String { "Email server connectivity test".into() }
-fn default_body() -> String { "This is a connectivity test sent by email-tester.\n".into() }
-fn default_timeout() -> u64 { 20 }
-fn default_log_level() -> String { "info".into() }
-fn default_theme() -> String { "auto".into() }
+fn yes() -> bool {
+    true
+}
+fn inbox() -> String {
+    "INBOX".into()
+}
+fn default_subject() -> String {
+    "Email server connectivity test".into()
+}
+fn default_body() -> String {
+    "This is a connectivity test sent by email-tester.\n".into()
+}
+fn default_timeout() -> u64 {
+    20
+}
+fn default_log_level() -> String {
+    "info".into()
+}
+fn default_theme() -> String {
+    "auto".into()
+}
 
 impl Default for Profile {
-    fn default() -> Self { crate::outlook_defaults() }
+    fn default() -> Self {
+        crate::outlook_defaults()
+    }
 }
 
 // ---- base64 (de)serialiser for the optional password -----------------
@@ -129,7 +152,9 @@ fn de_b64<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<String>, D::E
         None => Ok(None),
         Some(s) => {
             let bytes = B64.decode(s.as_bytes()).map_err(serde::de::Error::custom)?;
-            Ok(Some(String::from_utf8(bytes).map_err(serde::de::Error::custom)?))
+            Ok(Some(
+                String::from_utf8(bytes).map_err(serde::de::Error::custom)?,
+            ))
         }
     }
 }
@@ -141,8 +166,8 @@ impl Config {
     pub fn load(path: &Path) -> Result<Self> {
         let text = fs::read_to_string(path)
             .with_context(|| format!("reading config file {}", path.display()))?;
-        let cfg: Config = toml::from_str(&text)
-            .with_context(|| format!("parsing TOML {}", path.display()))?;
+        let cfg: Config =
+            toml::from_str(&text).with_context(|| format!("parsing TOML {}", path.display()))?;
         Ok(cfg)
     }
 
@@ -153,11 +178,10 @@ impl Config {
         let mut text = String::from(
             "# email-tester configuration\n\
              # Multiple [profiles.<name>] sections can coexist; pick one with --profile.\n\
-             # The file 'email_tester.toml' next to the executable is auto-loaded.\n\n");
-        text.push_str(&toml::to_string_pretty(self)
-            .context("serialising config to TOML")?);
-        fs::write(path, text)
-            .with_context(|| format!("writing config file {}", path.display()))?;
+             # The file 'email_tester.toml' next to the executable is auto-loaded.\n\n",
+        );
+        text.push_str(&toml::to_string_pretty(self).context("serialising config to TOML")?);
+        fs::write(path, text).with_context(|| format!("writing config file {}", path.display()))?;
         Ok(())
     }
 
@@ -180,16 +204,22 @@ pub fn discover_config_path() -> Option<PathBuf> {
     if let Ok(exe) = env::current_exe() {
         if let Some(dir) = exe.parent() {
             let p = dir.join(DEFAULT_FILE_NAME);
-            if p.exists() { return Some(p); }
+            if p.exists() {
+                return Some(p);
+            }
         }
     }
     if let Ok(cwd) = env::current_dir() {
         let p = cwd.join(DEFAULT_FILE_NAME);
-        if p.exists() { return Some(p); }
+        if p.exists() {
+            return Some(p);
+        }
     }
     if let Some(dir) = dirs::config_dir() {
         let p = dir.join("email-tester").join(DEFAULT_FILE_NAME);
-        if p.exists() { return Some(p); }
+        if p.exists() {
+            return Some(p);
+        }
     }
     None
 }

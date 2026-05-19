@@ -1,0 +1,6 @@
+# Stable rustfmt options only - anything behind +nightly is intentionally
+# omitted so CI on stable agrees with local format runs.
+edition = "2021"
+max_width = 100
+use_small_heuristics = "Default"
+newline_style = "Unix"

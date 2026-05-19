@@ -12,9 +12,11 @@ use std::sync::Arc;
 use std::time::Duration;
 use tracing::{debug, error, info, warn};
 
+// Box the TLS variant (~1 KB) so the enum stays small
+// (clippy::large_enum_variant).
 enum Stream {
     Plain(BufReader<TcpStream>, TcpStream),
-    Tls(BufReader<StreamOwned<ClientConnection, TcpStream>>),
+    Tls(Box<BufReader<StreamOwned<ClientConnection, TcpStream>>>),
 }
 impl Stream {
     fn write_all(&mut self, b: &[u8]) -> std::io::Result<()> {
@@ -52,7 +54,11 @@ pub fn run(p: &Profile) -> Result<bool> {
     }
 
     let mut stream = match p.pop_security {
-        Security::Implicit => Stream::Tls(BufReader::new(tls_wrap(&tls_cfg, tcp, &p.pop_host)?)),
+        Security::Implicit => Stream::Tls(Box::new(BufReader::new(tls_wrap(
+            &tls_cfg,
+            tcp,
+            &p.pop_host,
+        )?))),
         _ => {
             let tcp2 = tcp.try_clone()?;
             Stream::Plain(BufReader::new(tcp), tcp2)
@@ -80,11 +86,21 @@ pub fn run(p: &Profile) -> Result<bool> {
             Stream::Plain(_, w) => w,
             _ => unreachable!(),
         };
-        stream = Stream::Tls(BufReader::new(tls_wrap(&tls_cfg, tcp, &p.pop_host)?));
+        stream = Stream::Tls(Box::new(BufReader::new(tls_wrap(
+            &tls_cfg,
+            tcp,
+            &p.pop_host,
+        )?)));
     }
 
-    let user = p.user.as_ref().ok_or_else(|| anyhow!("POP3 needs a username"))?;
-    let pass = p.password.as_ref().ok_or_else(|| anyhow!("POP3 needs a password"))?;
+    let user = p
+        .user
+        .as_ref()
+        .ok_or_else(|| anyhow!("POP3 needs a username"))?;
+    let pass = p
+        .password
+        .as_ref()
+        .ok_or_else(|| anyhow!("POP3 needs a password"))?;
 
     if let Err(e) = single(&mut stream, &format!("USER {user}")) {
         error!(protocol = "pop3", "USER FAILED: {e}");
@@ -142,7 +158,7 @@ fn single(s: &mut Stream, cmd: &str) -> Result<String> {
     if line.starts_with("+OK") {
         Ok(line)
     } else {
-        bail!(line.trim_end().to_string())
+        bail!("{}", line.trim_end())
     }
 }
 
@@ -151,7 +167,7 @@ fn multiline(s: &mut Stream, cmd: &str) -> Result<String> {
     s.write_all(format!("{cmd}\r\n").as_bytes())?;
     let first = read_one(s)?;
     if !first.starts_with("+OK") {
-        bail!(first.trim_end().to_string());
+        bail!("{}", first.trim_end());
     }
     let mut acc = String::new();
     loop {

@@ -16,9 +16,12 @@ use std::sync::Arc;
 use std::time::Duration;
 use tracing::{debug, error, info, warn};
 
+// The TLS variant is ~1 KB (rustls ClientConnection holds protocol state +
+// buffers), the plain variant ~56 B.  Boxing the large variant keeps the
+// enum small everywhere it is moved around (clippy::large_enum_variant).
 enum Stream {
     Plain(BufReader<TcpStream>, TcpStream),
-    Tls(BufReader<StreamOwned<ClientConnection, TcpStream>>),
+    Tls(Box<BufReader<StreamOwned<ClientConnection, TcpStream>>>),
 }
 
 impl Stream {
@@ -58,7 +61,11 @@ pub fn run(p: &Profile) -> Result<bool> {
         warn!(protocol = "imap", "TLS certificate verification DISABLED");
     }
     let mut stream = match p.imap_security {
-        Security::Implicit => Stream::Tls(BufReader::new(tls_wrap(&tls_cfg, tcp, &p.imap_host)?)),
+        Security::Implicit => Stream::Tls(Box::new(BufReader::new(tls_wrap(
+            &tls_cfg,
+            tcp,
+            &p.imap_host,
+        )?))),
         _ => {
             let tcp2 = tcp.try_clone()?;
             Stream::Plain(BufReader::new(tcp), tcp2)
@@ -73,7 +80,10 @@ pub fn run(p: &Profile) -> Result<bool> {
     let caps = imap_cmd(&mut stream, "a1", "CAPABILITY")?;
     info!(protocol = "imap", "CAPABILITY: {}", caps.trim_end());
     if p.imap_security == Security::None && caps.to_uppercase().contains("LOGINDISABLED") {
-        warn!(protocol = "imap", "Server advertises LOGINDISABLED on cleartext - require STARTTLS/SSL");
+        warn!(
+            protocol = "imap",
+            "Server advertises LOGINDISABLED on cleartext - require STARTTLS/SSL"
+        );
     }
 
     // ----- STARTTLS upgrade ------------------------------------------
@@ -84,18 +94,28 @@ pub fn run(p: &Profile) -> Result<bool> {
             Stream::Plain(_, w) => w,
             _ => unreachable!(),
         };
-        stream = Stream::Tls(BufReader::new(tls_wrap(&tls_cfg, tcp, &p.imap_host)?));
+        stream = Stream::Tls(Box::new(BufReader::new(tls_wrap(
+            &tls_cfg,
+            tcp,
+            &p.imap_host,
+        )?)));
         // Re-issue CAPABILITY post-TLS.
         let caps2 = imap_cmd(&mut stream, "a3", "CAPABILITY")?;
-        info!(protocol = "imap", "CAPABILITY (post-TLS): {}", caps2.trim_end());
+        info!(
+            protocol = "imap",
+            "CAPABILITY (post-TLS): {}",
+            caps2.trim_end()
+        );
     }
 
     // ----- LOGIN -----------------------------------------------------
-    let user = p.user.as_ref().ok_or_else(|| anyhow!("IMAP needs a username"))?;
-    let pass = p
-        .password
+    let user = p
+        .user
         .as_ref()
-        .ok_or_else(|| anyhow!("IMAP needs a password (OAuth2 not yet supported by this client)"))?;
+        .ok_or_else(|| anyhow!("IMAP needs a username"))?;
+    let pass = p.password.as_ref().ok_or_else(|| {
+        anyhow!("IMAP needs a password (OAuth2 not yet supported by this client)")
+    })?;
     let cmd = format!("LOGIN {} {}", quote(user), quote(pass));
     match imap_cmd(&mut stream, "b1", &cmd) {
         Ok(_) => info!(protocol = "imap", "LOGIN succeeded as {user}"),
@@ -117,14 +137,25 @@ pub fn run(p: &Profile) -> Result<bool> {
         }
         Err(e) => warn!(protocol = "imap", "LIST failed: {e}"),
     }
-    let folder = if p.imap_folder.is_empty() { "INBOX" } else { p.imap_folder.as_str() };
+    let folder = if p.imap_folder.is_empty() {
+        "INBOX"
+    } else {
+        p.imap_folder.as_str()
+    };
     match imap_cmd(&mut stream, "b3", &format!("EXAMINE {}", quote(folder))) {
         Ok(sel) => {
             let count = sel
                 .lines()
-                .find_map(|l| l.strip_prefix("* ").and_then(|s| s.split_whitespace().nth(0)).filter(|t| t.chars().all(|c| c.is_ascii_digit())))
+                .find_map(|l| {
+                    l.strip_prefix("* ")
+                        .and_then(|s| s.split_whitespace().next())
+                        .filter(|t| t.chars().all(|c| c.is_ascii_digit()))
+                })
                 .unwrap_or("?");
-            info!(protocol = "imap", "EXAMINE {folder} (read-only, {count} messages)");
+            info!(
+                protocol = "imap",
+                "EXAMINE {folder} (read-only, {count} messages)"
+            );
         }
         Err(e) => error!(protocol = "imap", "EXAMINE failed: {e}"),
     }
@@ -176,13 +207,13 @@ fn read_response(s: &mut Stream, tag: Option<&str>) -> Result<String> {
         match tag {
             None => return Ok(acc), // greeting: first line is enough
             Some(t) => {
-                if line.starts_with(t) {
-                    let rest = &line[t.len()..].trim_start();
+                if let Some(rest) = line.strip_prefix(t) {
+                    let rest = rest.trim_start();
                     if rest.starts_with("OK") {
                         return Ok(acc);
                     }
                     if rest.starts_with("NO") || rest.starts_with("BAD") {
-                        bail!("{}", line.trim_end().to_string());
+                        bail!("{}", line.trim_end());
                     }
                 }
             }

@@ -34,11 +34,10 @@ pub struct TestResults {
 impl TestResults {
     pub fn all_passed(&self) -> bool {
         let xs = [self.smtp, self.imap, self.pop3];
-        let any_run = xs.iter().any(|o| matches!(o, Some(TestOutcome::Pass | TestOutcome::Fail)));
-        any_run
-            && xs
-                .iter()
-                .all(|o| !matches!(o, Some(TestOutcome::Fail)))
+        let any_run = xs
+            .iter()
+            .any(|o| matches!(o, Some(TestOutcome::Pass | TestOutcome::Fail)));
+        any_run && xs.iter().all(|o| !matches!(o, Some(TestOutcome::Fail)))
     }
 }
 
