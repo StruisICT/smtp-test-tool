@@ -21,32 +21,30 @@ yanked  = "deny"
 ignore  = []
 
 # ---- licences ------------------------------------------------------------
+# Each entry below MUST correspond to a licence that at least one crate in
+# our dependency tree actually declares.  Speculative entries are kept out
+# so cargo-deny's 'license-not-encountered' warnings stay meaningful.
 [licenses]
 version = 2
-# Permissive set compatible with our dual-MIT/Apache-2.0 licence.
 allow = [
-    "MIT",
+    # SPDX permissive set compatible with our dual MIT/Apache-2.0.
     "Apache-2.0",
     "Apache-2.0 WITH LLVM-exception",
     "BSD-2-Clause",
     "BSD-3-Clause",
     "ISC",
+    "MIT",
     "MPL-2.0",
     "Unicode-3.0",
-    "Unicode-DFS-2016",
     "Zlib",
-    "CC0-1.0",
-    "0BSD",
-    "BSL-1.0",
-    "OpenSSL",         # ring's licence file pattern
+    # Additional permissive licences pulled in transitively:
+    "CDLA-Permissive-2.0",   # webpki-roots 1.x       (Mozilla cert bundle)
+    "OFL-1.1",               # epaint_default_fonts   (egui ships SIL fonts)
+    "Ubuntu-font-1.0",       # epaint_default_fonts   (Ubuntu Mono)
+    "BSL-1.0",               # clipboard-win, error-code (Boost SL, permissive)
+    "0BSD",                  # quoted_printable       (BSD Zero-Clause)
 ]
 confidence-threshold = 0.9
-
-# Specific crate exceptions (only when justified).
-[[licenses.clarify]]
-name      = "ring"
-expression = "MIT AND ISC AND OpenSSL"
-license-files = [{ path = "LICENSE", hash = 0xbd0eed23 }]
 
 # ---- bans ----------------------------------------------------------------
 [bans]
