@@ -25,6 +25,57 @@ pub enum Appearance {
     Unknown,
 }
 
+/// User-visible theme preference, stored in the config file as a string
+/// (`"auto"`, `"dark"`, `"light"`).  A string is used on disk so older
+/// configs (and hand-edited files with typos) keep loading; unknown
+/// values silently fall back to [`ThemeChoice::Auto`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ThemeChoice {
+    /// Follow the OS appearance via [`detect`].
+    #[default]
+    Auto,
+    /// Force dark theme regardless of OS.
+    Dark,
+    /// Force light theme regardless of OS.
+    Light,
+}
+
+impl ThemeChoice {
+    /// Parse from the on-disk config string.  Unknown values fall back
+    /// to [`Self::Auto`] (no panic, no error) so a malformed file
+    /// degrades gracefully.
+    pub fn from_config_str(s: &str) -> Self {
+        match s.trim().to_ascii_lowercase().as_str() {
+            "dark" => Self::Dark,
+            "light" => Self::Light,
+            // Includes "auto", "", and anything we don't recognise.
+            _ => Self::Auto,
+        }
+    }
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Auto => "auto",
+            Self::Dark => "dark",
+            Self::Light => "light",
+        }
+    }
+
+    /// Resolve to a concrete [`Appearance`] given an OS detection.
+    /// `Auto` uses the OS hint (falling back to [`Appearance::Dark`]
+    /// when the OS is silent); explicit choices always win.
+    pub fn resolve(self, os_hint: Appearance) -> Appearance {
+        match self {
+            Self::Dark => Appearance::Dark,
+            Self::Light => Appearance::Light,
+            Self::Auto => match os_hint {
+                Appearance::Dark | Appearance::Light => os_hint,
+                Appearance::Unknown => Appearance::Dark,
+            },
+        }
+    }
+}
+
 /// Best-effort current OS appearance.
 ///
 /// Never panics, never blocks for more than a short subprocess call on
@@ -229,6 +280,46 @@ mod tests {
     // Cargo runs tests in parallel by default; environment variables are
     // process-global, so we serialise the three cases into one ordered test
     // rather than fight the test runner.
+    #[test]
+    fn theme_choice_parses_and_resolves() {
+        assert_eq!(ThemeChoice::from_config_str("dark"), ThemeChoice::Dark);
+        assert_eq!(ThemeChoice::from_config_str("LIGHT"), ThemeChoice::Light);
+        assert_eq!(ThemeChoice::from_config_str("auto"), ThemeChoice::Auto);
+        // Unknown / empty values must NOT panic and must fall back to Auto.
+        assert_eq!(ThemeChoice::from_config_str(""), ThemeChoice::Auto);
+        assert_eq!(
+            ThemeChoice::from_config_str("high-contrast"),
+            ThemeChoice::Auto
+        );
+
+        // Auto follows the OS, Dark/Light override regardless.
+        assert_eq!(
+            ThemeChoice::Auto.resolve(Appearance::Dark),
+            Appearance::Dark
+        );
+        assert_eq!(
+            ThemeChoice::Auto.resolve(Appearance::Light),
+            Appearance::Light
+        );
+        assert_eq!(
+            ThemeChoice::Auto.resolve(Appearance::Unknown),
+            Appearance::Dark
+        );
+        assert_eq!(
+            ThemeChoice::Dark.resolve(Appearance::Light),
+            Appearance::Dark
+        );
+        assert_eq!(
+            ThemeChoice::Light.resolve(Appearance::Dark),
+            Appearance::Light
+        );
+
+        // as_str round-trips through from_config_str.
+        for choice in [ThemeChoice::Auto, ThemeChoice::Dark, ThemeChoice::Light] {
+            assert_eq!(ThemeChoice::from_config_str(choice.as_str()), choice);
+        }
+    }
+
     #[test]
     fn colorfgbg_parsing() {
         // SAFETY: this is the only test in the crate that touches

@@ -10,7 +10,7 @@
 use eframe::egui;
 use smtp_test_tool::config::{default_save_path, discover_config_path, Config};
 use smtp_test_tool::runner::{TestOutcome, TestResults};
-use smtp_test_tool::theme::{detect as detect_appearance, Appearance};
+use smtp_test_tool::theme::{detect as detect_appearance, Appearance, ThemeChoice};
 use smtp_test_tool::tls::Security;
 use smtp_test_tool::{outlook_defaults, run_tests, Profile};
 use std::path::PathBuf;
@@ -135,6 +135,12 @@ struct App {
     cc_csv: String,
     bcc_csv: String,
     tab: Tab,
+    /// What the OS reported at startup; cached so 'Follow OS' does not
+    /// re-shell-out to `defaults` / `gsettings` every frame.
+    os_appearance: Appearance,
+    /// Last appearance we actually applied via `Context::set_visuals`;
+    /// lets us re-apply only on real change.
+    applied_appearance: Appearance,
 }
 
 #[derive(PartialEq, Copy, Clone)]
@@ -147,19 +153,8 @@ enum Tab {
 
 impl App {
     fn new(sink: Arc<LogSink>, cc: &eframe::CreationContext<'_>) -> Self {
-        // OS theme follow (rule #4: always dark/light, all OS).
-        // Uses our own theme::detect() so we do not depend on dark-light,
-        // whose v2 pulls in the unmaintained async-std (RUSTSEC-2025-0052).
-        let visuals = match detect_appearance() {
-            Appearance::Dark => egui::Visuals::dark(),
-            Appearance::Light => egui::Visuals::light(),
-            Appearance::Unknown => {
-                tracing::info!("OS did not advertise a colour scheme; defaulting to dark");
-                egui::Visuals::dark()
-            }
-        };
-        cc.egui_ctx.set_visuals(visuals);
-
+        // Load config FIRST so we can honour the user's theme choice
+        // (rule #4: dark + light, with manual override).
         let cfg_path = discover_config_path();
         let cfg = cfg_path
             .as_ref()
@@ -175,6 +170,17 @@ impl App {
             .profile(&profile_name)
             .cloned()
             .unwrap_or_else(outlook_defaults);
+
+        // Detect OS appearance once (cached), then resolve through the
+        // user's stored ThemeChoice (Auto / Dark / Light).
+        let os_appearance = detect_appearance();
+        let initial_choice = ThemeChoice::from_config_str(&profile.theme);
+        let initial = initial_choice.resolve(os_appearance);
+        cc.egui_ctx.set_visuals(visuals_for(initial));
+        if os_appearance == Appearance::Unknown && initial_choice == ThemeChoice::Auto {
+            tracing::info!("OS did not advertise a colour scheme; defaulting to dark");
+        }
+
         let to_csv = profile.to.join(", ");
         let cc_csv = profile.cc.join(", ");
         let bcc_csv = profile.bcc.join(", ");
@@ -195,6 +201,26 @@ impl App {
             cc_csv,
             bcc_csv,
             tab: Tab::Servers,
+            os_appearance,
+            applied_appearance: initial,
+        }
+    }
+
+    /// Re-apply the user's current theme preference if it produces a
+    /// different concrete appearance than what we last applied.  Called
+    /// once per frame; cheap no-op when nothing changed.
+    fn refresh_theme(&mut self, ctx: &egui::Context) {
+        let choice = ThemeChoice::from_config_str(&self.profile.theme);
+        let target = choice.resolve(self.os_appearance);
+        if target != self.applied_appearance {
+            ctx.set_visuals(visuals_for(target));
+            self.applied_appearance = target;
+            tracing::info!(
+                "theme: now {} (choice={}, os={:?})",
+                target_label(target),
+                choice.as_str(),
+                self.os_appearance
+            );
         }
     }
 
@@ -259,6 +285,9 @@ impl eframe::App for App {
     // deprecated and provided as a no-op default by the trait.
     fn ui(&mut self, root_ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         let ctx = root_ui.ctx().clone();
+        // React to a theme change made on the Advanced tab the previous
+        // frame.  No-op when the chosen theme already matches.
+        self.refresh_theme(&ctx);
         // Drain log lines from the sink.
         self.log_sink.drain_into(&mut self.log_buf);
         if self.log_buf.len() > 5000 {
@@ -389,6 +418,33 @@ impl eframe::App for App {
 }
 
 // ---------- helpers -------------------------------------------------------
+fn visuals_for(a: Appearance) -> egui::Visuals {
+    match a {
+        Appearance::Light => egui::Visuals::light(),
+        // Both Dark and (defensively) Unknown map to dark, matching the
+        // documented fallback in ThemeChoice::resolve.
+        Appearance::Dark | Appearance::Unknown => egui::Visuals::dark(),
+    }
+}
+
+fn target_label(a: Appearance) -> &'static str {
+    match a {
+        Appearance::Dark => "dark",
+        Appearance::Light => "light",
+        Appearance::Unknown => "dark (fallback)",
+    }
+}
+
+/// Show the resolved OS hint next to 'Follow OS' so the user knows
+/// what Auto currently maps to.
+fn theme_label(choice: ThemeChoice, os: Appearance) -> String {
+    match choice {
+        ThemeChoice::Auto => format!("Follow OS ({})", target_label(os)),
+        ThemeChoice::Dark => "Dark".to_string(),
+        ThemeChoice::Light => "Light".to_string(),
+    }
+}
+
 fn outcome_chip(ui: &mut egui::Ui, name: &str, o: Option<TestOutcome>) {
     let (txt, col) = match o {
         Some(TestOutcome::Pass) => (
@@ -599,6 +655,25 @@ fn tab_advanced(ui: &mut egui::Ui, a: &mut App) {
                     ui.selectable_value(&mut a.profile.log_level, lv.into(), lv);
                 }
             });
+        ui.end_row();
+
+        ui.label("Theme:");
+        let mut current = ThemeChoice::from_config_str(&a.profile.theme);
+        let previous = current;
+        egui::ComboBox::from_id_salt("themechoice")
+            .selected_text(theme_label(current, a.os_appearance))
+            .show_ui(ui, |ui| {
+                ui.selectable_value(
+                    &mut current,
+                    ThemeChoice::Auto,
+                    theme_label(ThemeChoice::Auto, a.os_appearance),
+                );
+                ui.selectable_value(&mut current, ThemeChoice::Dark, "Dark");
+                ui.selectable_value(&mut current, ThemeChoice::Light, "Light");
+            });
+        if current != previous {
+            a.profile.theme = current.as_str().to_string();
+        }
         ui.end_row();
 
         ui.label("Save password in config:");
