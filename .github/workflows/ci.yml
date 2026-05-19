@@ -1,0 +1,197 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Cancel superseded runs on the same ref so PR pushes don't pile up.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Single set of permissions for the whole workflow; jobs that need
+# more (e.g. pages deploy) elevate locally.
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  # Keep CI logs deterministic.
+  CARGO_INCREMENTAL: 0
+
+jobs:
+
+  # -------------------------------------------------------------------
+  # Fast gates: fmt + clippy on Linux only.  Fail fast before spending
+  # CI minutes on the full matrix.
+  # -------------------------------------------------------------------
+  lint:
+    name: fmt + clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: Install Linux GUI build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libxkbcommon-dev libwayland-dev \
+            libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev \
+            libgl1-mesa-dev libegl1-mesa-dev libfontconfig-dev
+      - name: cargo fmt --check
+        run: cargo fmt --all -- --check
+      - name: cargo clippy -D warnings
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+  # -------------------------------------------------------------------
+  # Build + test matrix across the three release-target OSes.
+  # -------------------------------------------------------------------
+  test:
+    name: test (${{ matrix.os }})
+    needs: lint
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.os }}
+      - name: Install Linux GUI build deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libxkbcommon-dev libwayland-dev \
+            libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev \
+            libgl1-mesa-dev libegl1-mesa-dev libfontconfig-dev
+      - name: cargo build (CLI + GUI)
+        run: cargo build --all-features --all-targets
+      - name: cargo test
+        run: cargo test --all-features --no-fail-fast
+
+  # -------------------------------------------------------------------
+  # Minimum-supported Rust version: catches accidental use of fresh
+  # stdlib / language features.
+  # -------------------------------------------------------------------
+  msrv:
+    name: MSRV (1.75)
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: "1.75"
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: msrv
+      - name: Install Linux GUI build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libxkbcommon-dev libwayland-dev \
+            libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev \
+            libgl1-mesa-dev libegl1-mesa-dev libfontconfig-dev
+      - name: cargo check (all features)
+        # Drop the toolchain file so MSRV is what we actually test.
+        run: |
+          rm -f rust-toolchain.toml
+          cargo +1.75 check --all-features --all-targets
+
+  # -------------------------------------------------------------------
+  # Security + licence + duplicate-dep policy.
+  # -------------------------------------------------------------------
+  deny:
+    name: cargo-deny
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-deny
+      - run: cargo deny --all-features check
+
+  # -------------------------------------------------------------------
+  # Line-coverage report uploaded to Codecov (free for public repos).
+  # -------------------------------------------------------------------
+  coverage:
+    name: coverage
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: coverage
+      - name: Install Linux GUI build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libxkbcommon-dev libwayland-dev \
+            libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev \
+            libgl1-mesa-dev libegl1-mesa-dev libfontconfig-dev
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov
+      - name: Generate coverage (lcov)
+        run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
+      - uses: codecov/codecov-action@v4
+        with:
+          files: lcov.info
+          fail_ci_if_error: false
+          # No token needed for public repos.
+
+  # -------------------------------------------------------------------
+  # Docs build (cargo doc).  On main, deploy to GitHub Pages.
+  # -------------------------------------------------------------------
+  docs:
+    name: docs
+    needs: lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: docs
+      - name: Install Linux GUI build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libxkbcommon-dev libwayland-dev \
+            libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev \
+            libgl1-mesa-dev libegl1-mesa-dev libfontconfig-dev
+      - name: cargo doc
+        env:
+          RUSTDOCFLAGS: "-D warnings"
+        run: cargo doc --all-features --no-deps
+      - name: Add index redirect
+        run: |
+          echo '<meta http-equiv="refresh" content="0; url=smtp_test_tool/index.html">' \
+            > target/doc/index.html
+      - uses: actions/upload-pages-artifact@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          path: target/doc
+      - id: deploy
+        if: github.ref == 'refs/heads/main'
+        uses: actions/deploy-pages@v4
