@@ -1,0 +1,41 @@
+version: 2
+
+# Dependabot keeps the repo current on Cargo deps and GitHub Action
+# pins.  Rule #2 (verify latest tech) is partially automated here.
+# PRs are grouped to keep noise low: one PR for all non-major Cargo
+# bumps per week, one PR for all Actions bumps per week.
+
+updates:
+  # ---- Cargo ----
+  - package-ecosystem: cargo
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Amsterdam
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+      include: scope
+    groups:
+      patch-and-minor:
+        update-types: [patch, minor]
+    # Major bumps remain individual PRs so breaking-change adapter
+    # work stays atomic (rule #5).
+
+  # ---- GitHub Actions ----
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Amsterdam
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci(deps)"
+      include: scope
+    groups:
+      actions-patch-and-minor:
+        update-types: [patch, minor]
