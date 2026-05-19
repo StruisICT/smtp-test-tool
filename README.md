@@ -35,8 +35,14 @@ contrast on the elements where colour carries information.
   (`5.7.60` SendAsDenied, `5.7.139` Basic-Auth-disabled, `5.7.57`
   unauthenticated MAIL FROM, `5.7.708` IP-reputation block, …) are
   translated to "what to ask IT to change".
-- **Outlook.com / Office 365 defaults** baked in — works out of the
-  box for most accounts.
+- **Provider presets** for the eleven mail services people actually
+  use: Outlook.com / Hotmail, Microsoft 365, Gmail / Google Workspace,
+  Yahoo Mail, iCloud / Apple Mail, Proton Mail (Bridge), Fastmail,
+  Zoho Mail, AOL Mail, GMX / Mail.com, and Yandex Mail — pick one
+  from the *Provider preset* menu and the SMTP / IMAP / POP3 host,
+  port, and security fields fill themselves in.  Each preset carries
+  a small note about app-password or Bridge requirements where they
+  apply.
 - **Profiles** in a human-readable TOML file (`smtp_test_tool.toml`)
   auto-loaded from the executable's directory, so "verify the
   last-known-good settings still work" is one click.

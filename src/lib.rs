@@ -11,6 +11,7 @@ pub mod config;
 pub mod diagnostics;
 pub mod imap;
 pub mod pop3;
+pub mod providers;
 pub mod runner;
 pub mod smtp;
 pub mod theme;

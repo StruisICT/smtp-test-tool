@@ -7,7 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- **Removed all persistence of credentials.**  `Profile::password` and
+  `Profile::oauth_token` are now `#[serde(skip)]`; the base64 "opt-in"
+  codepath, the GUI checkbox, and the `base64` crate dependency are
+  all gone.  Enforced by `tests/config_roundtrip.rs::
+  save_never_writes_credentials_even_when_set`.  Codified as rule #8
+  in `AGENTS.md`.  **BREAKING**: a v0.1.0 user who had a saved
+  `password_b64` in their config will need to re-enter the password
+  on next launch.
+
 ### Added
+- **Provider-preset menu** (`src/providers.rs`) with eleven curated
+  presets: Outlook.com, Microsoft 365, Gmail, Yahoo, iCloud, Proton
+  Mail (Bridge), Fastmail, Zoho, AOL, GMX, Yandex.  Picking one from
+  the top-bar *Provider preset ▾* menu rewrites the SMTP/IMAP/POP3
+  host, port, and security fields on the active profile and logs an
+  app-password / Bridge note where one applies.  Replaces the old
+  one-shot "Reset to Outlook.com" button.
 - **Manual theme override on the GUI Advanced tab.**  Auto / Dark /
   Light, with the resolved OS hint shown next to the Auto label;
   persisted through `Profile.theme` so existing v0.1.0 configs keep

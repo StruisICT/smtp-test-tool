@@ -9,6 +9,7 @@
 
 use eframe::egui;
 use smtp_test_tool::config::{default_save_path, discover_config_path, Config};
+use smtp_test_tool::providers::{self, Provider};
 use smtp_test_tool::runner::{TestOutcome, TestResults};
 use smtp_test_tool::theme::{detect as detect_appearance, Appearance, ThemeChoice};
 use smtp_test_tool::tls::Security;
@@ -233,17 +234,31 @@ impl App {
         }
     }
 
-    fn apply_outlook_defaults(&mut self) {
-        let d = outlook_defaults();
-        self.profile.smtp_host = d.smtp_host;
-        self.profile.smtp_port = d.smtp_port;
-        self.profile.smtp_security = d.smtp_security;
-        self.profile.imap_host = d.imap_host;
-        self.profile.imap_port = d.imap_port;
-        self.profile.imap_security = d.imap_security;
-        self.profile.pop_host = d.pop_host;
-        self.profile.pop_port = d.pop_port;
-        self.profile.pop_security = d.pop_security;
+    /// Overwrite the SMTP / IMAP / POP3 host, port, and security fields
+    /// on the active profile from a curated provider preset.  Leaves
+    /// every other field (credentials, profile name, theme, ...) alone.
+    /// Providers without POP3 (iCloud, Proton Bridge) disable the POP3
+    /// test rather than leaving stale data behind.
+    fn apply_provider(&mut self, p: &Provider) {
+        self.profile.smtp_host = p.smtp.host.into();
+        self.profile.smtp_port = p.smtp.port;
+        self.profile.smtp_security = p.smtp.security;
+        self.profile.imap_host = p.imap.host.into();
+        self.profile.imap_port = p.imap.port;
+        self.profile.imap_security = p.imap.security;
+        match p.pop {
+            Some(pop) => {
+                self.profile.pop_host = pop.host.into();
+                self.profile.pop_port = pop.port;
+                self.profile.pop_security = pop.security;
+                // Leave pop_enabled untouched; user may want POP off
+                // even on providers that support it.
+            }
+            None => {
+                self.profile.pop_enabled = false;
+            }
+        }
+        tracing::info!("applied provider preset: {}", p.name);
     }
 
     fn run_tests_async(&mut self) {
@@ -349,8 +364,31 @@ impl eframe::App for App {
                         );
                     }
                 }
-                if ui.button("Reset to Outlook.com").clicked() {
-                    self.apply_outlook_defaults();
+                // Provider preset menu: applies one curated set of
+                // host/port/security values to all three protocol
+                // blocks below.  Other fields (credentials, etc.) are
+                // left alone.
+                let mut chosen: Option<&'static Provider> = None;
+                // "..." rather than a unicode arrow because the default
+                // egui font ships without U+25BE (small down-pointing
+                // triangle) and falls back to a tofu glyph.
+                ui.menu_button("Provider preset...", |ui| {
+                    for p in providers::PROVIDERS {
+                        let mut label = p.name.to_string();
+                        if p.pop.is_none() {
+                            label.push_str("  (no POP3)");
+                        }
+                        if ui.button(label).clicked() {
+                            chosen = Some(p);
+                            ui.close();
+                        }
+                    }
+                });
+                if let Some(p) = chosen {
+                    self.apply_provider(p);
+                    if let Some(note) = p.note {
+                        tracing::info!("note: {note}");
+                    }
                 }
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                     ui.label(
@@ -499,38 +537,55 @@ fn level_style(lvl: LogLevel, dark: bool) -> (egui::Color32, &'static str) {
 
 // ---------- tabs ----------------------------------------------------------
 fn tab_servers(ui: &mut egui::Ui, a: &mut App) {
-    egui::Grid::new("creds")
-        .num_columns(3)
-        .striped(false)
-        .show(ui, |ui| {
-            ui.label("Username:");
-            let user = a.profile.user.clone().unwrap_or_default();
-            let mut u = user;
-            if ui.text_edit_singleline(&mut u).changed() {
-                a.profile.user = Some(u).filter(|s| !s.is_empty());
-            }
-            ui.end_row();
+    // Credentials: use ui.horizontal() rows (like proto_block) rather than
+    // a Grid, because Grid sizes cells by intrinsic content and never
+    // grows text-edits.  We left-align labels to a fixed width column
+    // (LABEL_W) so they line up vertically, then hand the remainder of
+    // the row to the entry.
+    const LABEL_W: f32 = 100.0;
+    const SHOW_W: f32 = 70.0; // approx "☑ Show" checkbox
+    const HINT_W: f32 = 160.0; // approx "(XOAUTH2, optional)"
 
-            ui.label("Password:");
-            let mut pwd = a.profile.password.clone().unwrap_or_default();
-            let resp = ui.add(egui::TextEdit::singleline(&mut pwd).password(!a.show_pwd));
-            if resp.changed() {
-                a.profile.password = Some(pwd).filter(|s| !s.is_empty());
-            }
-            ui.checkbox(&mut a.show_pwd, "Show");
-            ui.end_row();
-
-            ui.label("OAuth token:");
-            let mut t = a.profile.oauth_token.clone().unwrap_or_default();
-            if ui
-                .add(egui::TextEdit::singleline(&mut t).password(true))
-                .changed()
-            {
-                a.profile.oauth_token = Some(t).filter(|s| !s.is_empty());
-            }
-            ui.label("(XOAUTH2, optional)");
-            ui.end_row();
-        });
+    ui.horizontal(|ui| {
+        ui.add_sized([LABEL_W, 0.0], egui::Label::new("Username:"));
+        let mut u = a.profile.user.clone().unwrap_or_default();
+        let resp = ui.add_sized(
+            [ui.available_width(), 0.0],
+            egui::TextEdit::singleline(&mut u),
+        );
+        if resp.changed() {
+            a.profile.user = Some(u).filter(|s| !s.is_empty());
+        }
+    });
+    ui.horizontal(|ui| {
+        ui.add_sized([LABEL_W, 0.0], egui::Label::new("Password:"));
+        let mut pwd = a.profile.password.clone().unwrap_or_default();
+        let entry_w = (ui.available_width() - SHOW_W).max(80.0);
+        let resp = ui.add_sized(
+            [entry_w, 0.0],
+            egui::TextEdit::singleline(&mut pwd).password(!a.show_pwd),
+        );
+        if resp.changed() {
+            a.profile.password = Some(pwd).filter(|s| !s.is_empty());
+        }
+        ui.checkbox(&mut a.show_pwd, "Show");
+    });
+    ui.horizontal(|ui| {
+        ui.add_sized([LABEL_W, 0.0], egui::Label::new("OAuth token:"));
+        let mut t = a.profile.oauth_token.clone().unwrap_or_default();
+        let entry_w = (ui.available_width() - HINT_W).max(80.0);
+        let resp = ui.add_sized(
+            [entry_w, 0.0],
+            egui::TextEdit::singleline(&mut t).password(true),
+        );
+        if resp.changed() {
+            a.profile.oauth_token = Some(t).filter(|s| !s.is_empty());
+        }
+        ui.add_sized(
+            [HINT_W, 0.0],
+            egui::Label::new(egui::RichText::new("(XOAUTH2, optional)").weak()),
+        );
+    });
     ui.separator();
     proto_block(
         ui,
