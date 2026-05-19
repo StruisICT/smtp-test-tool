@@ -77,7 +77,13 @@ pub struct Profile {
     pub pop_security: Security,
 
     // ---- message (only when send_test) ----
-    #[serde(default)]
+    // Defaults to TRUE so a fresh 'Run Test' click exercises the full
+    // end-to-end path including delivery / Send-As rights / spam
+    // filters, not just AUTH.  Users who want auth-only can untick the
+    // 'Actually send a test email' box on the Send Mail tab.  Existing
+    // v0.1.0 configs without a send_test entry get true on next load,
+    // matching what a fresh install would do.
+    #[serde(default = "yes")]
     pub send_test: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub mail_from: Option<String>,

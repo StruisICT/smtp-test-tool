@@ -44,7 +44,7 @@ pub fn outlook_defaults() -> Profile {
         pop_port: 995,
         pop_security: tls::Security::Implicit,
 
-        send_test: false,
+        send_test: true,
         mail_from: None,
         from_addr: None,
         to: Vec::new(),

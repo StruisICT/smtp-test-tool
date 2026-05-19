@@ -17,6 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `password_b64` in their config will need to re-enter the password
   on next launch.
 
+### Changed
+- **`send_test` now defaults to TRUE** (was false in v0.1.0).  Hitting
+  *Run Test* on a fresh install will exercise the full end-to-end path
+  including delivery, Send-As rights, and spam filters - not just AUTH.
+  Users who want auth-only behaviour can untick the *Actually send a
+  test email* box on the Send Mail tab.  Existing v0.1.0 configs that
+  explicitly set `send_test = false` keep that value; configs missing
+  the field will now load as true (matches fresh-install behaviour).
+
 ### Added
 - **Provider-preset menu** (`src/providers.rs`) with eleven curated
   presets: Outlook.com, Microsoft 365, Gmail, Yahoo, iCloud, Proton
