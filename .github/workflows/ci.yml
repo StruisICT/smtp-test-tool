@@ -32,7 +32,7 @@ jobs:
     name: fmt + clippy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
@@ -61,7 +61,7 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
         with:
@@ -88,7 +88,7 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: "1.85"
@@ -116,7 +116,7 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
       - uses: taiki-e/install-action@v2
         with:
@@ -131,7 +131,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: llvm-tools-preview
@@ -150,7 +150,7 @@ jobs:
           tool: cargo-llvm-cov
       - name: Generate coverage (lcov)
         run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
-      - uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v6
         with:
           files: lcov.info
           fail_ci_if_error: false
@@ -168,7 +168,7 @@ jobs:
       pages: write
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
         with:
@@ -188,10 +188,10 @@ jobs:
         run: |
           echo '<meta http-equiv="refresh" content="0; url=smtp_test_tool/index.html">' \
             > target/doc/index.html
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         if: github.ref == 'refs/heads/main'
         with:
           path: target/doc
       - id: deploy
         if: github.ref == 'refs/heads/main'
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

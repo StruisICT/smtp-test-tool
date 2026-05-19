@@ -48,7 +48,7 @@ jobs:
             archive: zip
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
@@ -95,7 +95,7 @@ jobs:
           $hash = (Get-FileHash "dist/$name.zip" -Algorithm SHA256).Hash.ToLower()
           "$hash  $name.zip" | Out-File -FilePath "dist/$name.zip.sha256" -Encoding ascii
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.target }}
           path: |
@@ -112,8 +112,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v8
         with:
           path: artifacts
       - name: Flatten artifact tree
@@ -122,7 +122,7 @@ jobs:
           find artifacts -mindepth 2 -type f -exec mv {} release/ \;
           ls -la release/
       - name: Create / update GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: release/*
           draft: false
@@ -142,7 +142,7 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
       - name: Install Linux GUI build deps
         run: |
