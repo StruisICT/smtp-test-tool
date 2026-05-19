@@ -16,6 +16,16 @@ the server returned — not "it doesn't work".
 
 ---
 
+## Screenshots
+
+The GUI follows the OS appearance, with a manual `auto / dark / light`
+override on the Advanced tab.  Both palettes meet WCAG 2.2 Level AAA
+contrast on the elements where colour carries information.
+
+| Dark | Light |
+|------|-------|
+| ![Dark theme](docs/screenshots/gui-dark.png) | ![Light theme](docs/screenshots/gui-light.png) |
+
 ## Features
 
 - **Three protocols** in one tool: SMTP (via [`lettre`]), IMAP and POP3
