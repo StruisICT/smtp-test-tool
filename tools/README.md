@@ -2,10 +2,14 @@
 
 Developer utilities, **not** shipped to end users.
 
-## `screenshot.ps1` — regenerate the GUI screenshots
+## `screenshot.ps1` / `screenshot.sh` / `screenshot-macos.sh`
 
-Captures `docs/screenshots/gui-{dark,light}.png` from the running release
-GUI.  Windows only (uses the Win32 `PrintWindow` API).
+Captures `docs/screenshots/gui-{dark,light}.png` from the running
+release GUI on Windows, Linux (X11), or macOS respectively.  All three
+scripts share the same recipe: stage a deterministic config that pins
+the requested theme next to the exe, launch the GUI, locate the
+window, capture pixels straight from the window's backing store, kill
+the process, restore the previous config.
 
 **Why this exists.**  Per `AGENTS.md` §3, any user-facing change must
 ship with dark + light screenshots.  This script is the deterministic
@@ -19,34 +23,57 @@ way to produce them so reviewers see the same image you do.
   cargo build --release --bin smtp-test-tool-gui
   ```
 
-### Run
+### Prerequisites (all platforms)
+
+```sh
+cargo build --release --bin smtp-test-tool-gui
+```
+
+### Windows
 
 ```powershell
-# from the repo root
 powershell -NoProfile -ExecutionPolicy Bypass `
     -File tools/screenshot.ps1 `
     -Theme dark  -OutPng docs/screenshots/gui-dark.png
-
 powershell -NoProfile -ExecutionPolicy Bypass `
     -File tools/screenshot.ps1 `
     -Theme light -OutPng docs/screenshots/gui-light.png
 ```
 
-### How it works
+Uses the Win32 `PrintWindow` API with `PW_RENDERFULLCONTENT`, which
+reads pixels from the window's own GL surface.  Works under
+overlapping windows; never captures any other desktop area.
 
-1. Backs up any pre-existing `target/release/smtp_test_tool.toml`.
-2. Writes a deterministic test config there with the requested theme.
-3. Launches `target/release/smtp-test-tool-gui.exe`.
-4. After a warmup period, locates the window via `Get-Process` (more
-   reliable than `FindWindow` under RDP / multi-session).
-5. Calls `PrintWindow(hWnd, dc, PW_RENDERFULLCONTENT)` to read pixels
-   straight from the window's backing store - works even when other
-   windows overlap, and *never* captures anything from the rest of
-   your desktop.
-6. Saves the PNG, kills the process, restores the backup config.
+### Linux (X11)
 
-### Wanted: a non-Windows equivalent
+```sh
+sudo apt install xdotool imagemagick     # one-off
+tools/screenshot.sh dark  docs/screenshots/gui-dark.png
+tools/screenshot.sh light docs/screenshots/gui-light.png
+```
 
-A macOS (`screencapture -l`) and Linux (Xvfb + grim/import) variant
-would let CI regenerate the screenshots on every PR.  Open issue
-welcome.
+`xdotool search --name 'SMTP Test Tool'` resolves the X11 window id;
+`import -window <id>` is the actual capture.  **Wayland** sessions are
+best-effort: xdotool reaches Xwayland clients via XWayland's X11
+bridge, but native-Wayland egui builds will need a manual `grim`
+capture - the script prints a warning when `$WAYLAND_DISPLAY` is set.
+
+### macOS
+
+```sh
+tools/screenshot-macos.sh dark  docs/screenshots/gui-dark.png
+tools/screenshot-macos.sh light docs/screenshots/gui-light.png
+```
+
+A short AppleScript helper iterates `CGWindowListCopyWindowInfo` to
+find the window id; `screencapture -x -o -l <id>` then writes the
+PNG.  First run will trigger a 'Screen Recording' permission prompt
+for your terminal under *System Settings > Privacy & Security*.
+
+### Future work
+
+CI does NOT yet regenerate these screenshots automatically; doing so
+would require a virtual display server (Xvfb) plus xdotool on the
+ubuntu-latest runner.  Open a PR if you want this - the matrix would
+run the Linux variant of the script and diff the output against the
+committed PNGs.
