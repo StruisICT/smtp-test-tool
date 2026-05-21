@@ -130,8 +130,8 @@ struct App {
     log_buf: Vec<LogLine>,
     show_pwd: bool,
     busy: bool,
-    /// Native credential store handle.  Box<dyn> so unit tests of the
-    /// surrounding logic could swap in a mock; the trait is Send+Sync
+    /// Native credential store handle.  `Box<dyn>` so unit tests of the
+    /// surrounding logic could swap in a mock; the trait is `Send+Sync`
     /// so it's safe to share across the background test thread (we
     /// don't currently, but the type promises it).
     keystore: Box<dyn Keystore>,
