@@ -9,6 +9,7 @@
 
 use eframe::egui;
 use smtp_test_tool::config::{default_save_path, discover_config_path, Config};
+use smtp_test_tool::diagnostics::smtp_hints_for;
 use smtp_test_tool::keystore::{default_keystore, Keystore};
 use smtp_test_tool::providers::{self, Provider};
 use smtp_test_tool::runner::{TestOutcome, TestResults};
@@ -146,6 +147,13 @@ struct App {
     cc_csv: String,
     bcc_csv: String,
     tab: Tab,
+    /// Multi-line buffer behind the *Diagnose* tab.  Persisted across
+    /// frames but not across launches (would be a privacy hazard - real
+    /// bounce bodies often contain headers).
+    diagnose_input: String,
+    /// Last result of running `smtp_hints_for` on `diagnose_input`,
+    /// rendered as a bullet list under the *Analyse* button.
+    diagnose_hints: Vec<String>,
     /// What the OS reported at startup; cached so 'Follow OS' does not
     /// re-shell-out to `defaults` / `gsettings` every frame.
     os_appearance: Appearance,
@@ -160,6 +168,9 @@ enum Tab {
     Send,
     Tls,
     Advanced,
+    /// Paste a bounce message body and get IT-actionable hints via the
+    /// same `smtp_hints_for` translator that powers the live tests.
+    Diagnose,
 }
 
 impl App {
@@ -244,6 +255,8 @@ impl App {
             cc_csv,
             bcc_csv,
             tab: Tab::Servers,
+            diagnose_input: String::new(),
+            diagnose_hints: Vec::new(),
             os_appearance,
             applied_appearance: initial,
             keystore,
@@ -490,6 +503,7 @@ impl eframe::App for App {
                 ui.selectable_value(&mut self.tab, Tab::Send, "Send Mail");
                 ui.selectable_value(&mut self.tab, Tab::Tls, "TLS / Auth");
                 ui.selectable_value(&mut self.tab, Tab::Advanced, "Advanced");
+                ui.selectable_value(&mut self.tab, Tab::Diagnose, "Diagnose bounce");
             });
             ui.separator();
 
@@ -500,6 +514,7 @@ impl eframe::App for App {
                     Tab::Send => tab_send(ui, self),
                     Tab::Tls => tab_tls(ui, self),
                     Tab::Advanced => tab_advanced(ui, self),
+                    Tab::Diagnose => tab_diagnose(ui, self),
                 });
         });
     }
@@ -848,6 +863,72 @@ fn tab_advanced(ui: &mut egui::Ui, a: &mut App) {
         }
         ui.end_row();
     });
+}
+
+/// Paste-a-bounce diagnostic.  Runs the bounce body through the same
+/// `smtp_hints_for` translator that live tests use, so a user who got a
+/// bounce in their main mail client can find out what to ask IT for
+/// without re-running the protocol against the server.
+fn tab_diagnose(ui: &mut egui::Ui, a: &mut App) {
+    ui.label(
+        "Paste a delivery-failure body below to extract IT-actionable hints. \
+         Detects SMTP enhanced status codes (e.g. 5.7.139, 5.7.60), Microsoft \
+         365 phrases (\"basic authentication is disabled\"), and webmail-side \
+         bounces such as Gmail's \"Send mail as / Mail sturen als\" failure. \
+         Nothing is sent over the network and the text is not stored on disk.",
+    );
+    ui.add_space(6.0);
+
+    let avail_h = ui.available_height();
+    // Reserve space for the action row + result panel underneath; tune
+    // to ~40 % of the tab body so the result is always visible without
+    // scrolling.
+    let input_h = (avail_h * 0.4).clamp(120.0, 260.0);
+    ui.add_sized(
+        [ui.available_width(), input_h],
+        egui::TextEdit::multiline(&mut a.diagnose_input)
+            .hint_text("Paste the bounce body here...")
+            .desired_rows(8),
+    );
+
+    ui.horizontal(|ui| {
+        let has_input = !a.diagnose_input.trim().is_empty();
+        if ui
+            .add_enabled(has_input, egui::Button::new("Analyse"))
+            .clicked()
+        {
+            a.diagnose_hints = smtp_hints_for(&a.diagnose_input);
+            if a.diagnose_hints.is_empty() {
+                tracing::info!("diagnose: no known patterns matched");
+            } else {
+                tracing::info!(
+                    "diagnose: {} hint line(s) generated",
+                    a.diagnose_hints.len()
+                );
+            }
+        }
+        if ui.button("Clear").clicked() {
+            a.diagnose_input.clear();
+            a.diagnose_hints.clear();
+        }
+    });
+
+    ui.add_space(8.0);
+    ui.separator();
+    ui.label(egui::RichText::new("Hints").strong());
+    if a.diagnose_hints.is_empty() {
+        ui.label(
+            egui::RichText::new("(no hints yet - paste a bounce above and click Analyse)").weak(),
+        );
+    } else {
+        egui::ScrollArea::vertical()
+            .auto_shrink([false, true])
+            .show(ui, |ui| {
+                for line in &a.diagnose_hints {
+                    ui.label(egui::RichText::new(line).monospace());
+                }
+            });
+    }
 }
 
 // -----------------------------------------------------------------------
