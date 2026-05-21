@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Known issues
+- The `docs/screenshots/gui-{dark,light}.png` files in this release
+  show the GUI at v0.1.1: the Provider-preset menu + full-width
+  credentials fields are visible, but the new keychain Save/Forget
+  buttons and the *Diagnose bounce* tab are not.  Regeneration via
+  `tools/screenshot.ps1` produced empty captures during the v0.1.2
+  session for reasons not yet root-caused (egui GL surface + Windows
+  `PrintWindow` interaction).  Tracked as a follow-up.
+
+## [0.1.2] - 2026-05-22
+
 ### Added
 - **OS-native keychain integration** behind a new `keychain` cargo
   feature (on by default).  Windows Credential Manager / macOS
@@ -125,6 +136,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   baseline, dark+light mode on every OS is mandatory, atomic
   conventional commits, no shortcuts.
 
-[Unreleased]: https://github.com/Struis112/smtp-test-tool/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/Struis112/smtp-test-tool/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/Struis112/smtp-test-tool/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/Struis112/smtp-test-tool/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/Struis112/smtp-test-tool/releases/tag/v0.1.0
