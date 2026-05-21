@@ -12,7 +12,7 @@
 //!   surface "rebuild with --features keychain" rather than silently
 //!   succeed.
 //!
-//! Tests use a small in-memory [`MockKeystore`] (see the `#[cfg(test)]`
+//! Tests use a small in-memory `MockKeystore` (see the `#[cfg(test)]`
 //! block) so they pass on every OS without touching a real keychain -
 //! crucial for headless CI Linux runners where there is no Secret
 //! Service daemon.
