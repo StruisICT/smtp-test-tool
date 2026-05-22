@@ -38,6 +38,56 @@ The Definition of Done is in [`AGENTS.md §3`](AGENTS.md). In short:
   `curl -s https://crates.io/api/v1/crates/<name>`) and that
   `cargo deny check` accepts its licence.
 
+## Translations
+
+The tool ships translations for a growing list of languages under
+`locales/<bcp47>.toml`.  As of v0.1.3 the set is:
+
+* `en` — base, hand-maintained by the maintainer.  Every key the
+  code looks up MUST exist here.
+* `nl` — native-quality (the maintainer is a Dutch speaker).
+* `de`, `es`, `fr`, `it`, `pt` — **machine-translated**, native
+  review welcome.  The file's `locale.status_note` says so in that
+  language.
+
+### Reviewing a machine-translated file
+
+1. Pick a file from the list above whose `status_note` is non-empty.
+2. Read it side-by-side with `locales/en.toml` (same key order).
+3. Focus on:
+   * Natural phrasing (don't translate word-for-word from English).
+   * Consistency with how the language's *own* tech press talks
+     about email — Microsoft and Google ship localised admin
+     panels; mirror their terminology where it makes sense.
+   * Keep technical tokens in English: `SMTP AUTH`, `STARTTLS`,
+     `XOAUTH2`, `MAIL FROM`, `App Password`, `Conditional Access`.
+     That matches what users see in M365 admin and helps IT triage.
+4. Open a PR that **also clears `locale.status_note`** if you can
+   attest to native-quality.  Mention which strings you reviewed
+   in the PR body.
+
+### Adding a brand-new language
+
+1. Copy `locales/en.toml` to `locales/<your-code>.toml`.
+2. Translate the right-hand sides; keep the section structure and
+   key names identical to en.toml.
+3. Add an `include_str!` + an entry to `LOCALES` in
+   `src/i18n.rs` (alphabetical-ish by code, doesn't matter for
+   correctness).
+4. Set a sensible `locale.native_name` (in your language) and
+   `locale.english_name`.  Leave `locale.status_note` saying
+   "machine-translated, native review welcome" if you used an LLM,
+   or empty if you can attest to native quality.
+5. `cargo build --all-features && cargo test --all-features` — the
+   lazy init panics on invalid TOML, so the build is the first
+   check.
+6. Open a PR.
+
+The **language selector** in the GUI (Advanced tab) only ever shows
+the user's OS locale + English.  Adding more locales does NOT clutter
+the UI for users who don't speak those languages — they only see
+theirs.
+
 ## Reporting a security issue
 
 Please do **not** open a public issue. Email the maintainer using the

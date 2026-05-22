@@ -45,9 +45,22 @@ pub const BASE: &str = "en";
 // be a quieter footgun.
 const EN_TOML: &str = include_str!("../locales/en.toml");
 const NL_TOML: &str = include_str!("../locales/nl.toml");
+const DE_TOML: &str = include_str!("../locales/de.toml");
+const ES_TOML: &str = include_str!("../locales/es.toml");
+const FR_TOML: &str = include_str!("../locales/fr.toml");
+const IT_TOML: &str = include_str!("../locales/it.toml");
+const PT_TOML: &str = include_str!("../locales/pt.toml");
 
 /// Codes of every shipped locale, sorted.  Wired by [`available_locales`].
-const LOCALES: &[(&str, &str)] = &[("en", EN_TOML), ("nl", NL_TOML)];
+const LOCALES: &[(&str, &str)] = &[
+    ("en", EN_TOML),
+    ("nl", NL_TOML),
+    ("de", DE_TOML),
+    ("es", ES_TOML),
+    ("fr", FR_TOML),
+    ("it", IT_TOML),
+    ("pt", PT_TOML),
+];
 
 // ---- runtime tables ------------------------------------------------------
 type FlatTable = HashMap<String, String>;

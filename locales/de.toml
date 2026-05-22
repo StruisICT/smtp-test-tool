@@ -1,0 +1,280 @@
+# smtp-test-tool locale: Deutsch (de)
+#
+# status: machine-translated, native review welcome
+# Open a PR against locales/de.toml to fix any awkward phrasing.
+# Technical terms (SMTP AUTH, App-Passwort, Conditional Access,
+# STARTTLS, XOAUTH2, MAIL FROM) are kept in English by design - that
+# matches what users see in Microsoft 365 admin panels.
+
+[app]
+name = "SMTP Test Tool"
+
+[locale]
+native_name = "Deutsch"
+english_name = "German"
+status_note = "Maschinelle Übersetzung - Muttersprachler-Review willkommen."
+
+[ui.window]
+title = "SMTP Test Tool"
+
+[ui.topbar]
+profile_label = "Profil:"
+save_config = "Konfiguration speichern"
+save_config_tooltip = "Schreibt das aktive Profil zurück in die Konfigurationsdatei neben der ausführbaren Datei."
+provider_preset = "Anbieter-Voreinstellung..."
+provider_preset_tooltip = "Wendet eine der kuratierten Mail-Anbieter-Voreinstellungen auf die Felder Host / Port / Sicherheit unten an."
+config_path_none = "keine Konfigurationsdatei"
+
+[ui.tab]
+servers = "Server"
+send_mail = "Mail senden"
+tls_auth = "TLS / Auth"
+advanced = "Erweitert"
+diagnose = "Bounce analysieren"
+
+[ui.servers]
+username = "Benutzername:"
+password = "Passwort:"
+show = "Anzeigen"
+oauth_token = "OAuth-Token:"
+oauth_hint = "(XOAUTH2, optional)"
+save_to_keychain = "Passwort im Schlüsselbund speichern"
+save_to_keychain_tooltip = "Speichert das Passwort im Schlüsselbund des Betriebssystems (Windows Credential Manager / macOS Keychain / Linux Secret Service).  Wird nie in die Konfigurationsdatei geschrieben."
+forget_keychain = "Schlüsselbund-Eintrag entfernen"
+forget_keychain_tooltip = "Entfernt den smtp-test-tool-Eintrag für diesen Benutzer aus dem OS-Schlüsselbund.  Das Passwortfeld oben wird ebenfalls geleert."
+loaded_from_keychain = "(aus Schlüsselbund geladen)"
+
+[ui.proto]
+test_smtp = "SMTP testen"
+test_imap = "IMAP testen"
+test_pop3 = "POP3 testen"
+host = "Host:"
+port = "Port:"
+security = "Sicherheit:"
+security_none = "keine"
+security_starttls = "starttls"
+security_ssl = "ssl"
+
+[ui.send]
+toggle = "Tatsächlich eine Testmail senden (sonst wird nur AUTH getestet)"
+mail_from = "MAIL FROM (Umschlag):"
+from_header = "From: (Kopf):"
+to = "An (Komma-getrennt):"
+cc = "Cc (Komma-getrennt):"
+bcc = "Bcc (Komma-getrennt):"
+reply_to = "Antwort an:"
+subject = "Betreff:"
+body = "Inhalt:"
+
+[ui.tls]
+auth_mech = "SMTP-AUTH-Mechanismus:"
+insecure = "Zertifikatsprüfung deaktivieren (UNSICHER - nur zum Testen)"
+ca_bundle = "CA-Bundle (PEM):"
+
+[ui.advanced]
+timeout = "Timeout (s):"
+ehlo = "EHLO/HELO-Name:"
+imap_folder = "IMAP-Ordner:"
+log_level = "Log-Level:"
+theme = "Design:"
+language = "Sprache:"
+language_unsupported = "Deine OS-Sprache ({code}) ist noch nicht übersetzt.  Texte werden auf Englisch angezeigt; Beiträge willkommen."
+theme_follow_os = "Dem OS folgen ({hint})"
+theme_dark = "Dunkel"
+theme_light = "Hell"
+
+[ui.actions]
+run_test = "Test ausführen"
+running = "Läuft..."
+clear_log = "Log löschen"
+
+[ui.status]
+smtp_idle = "SMTP: -"
+imap_idle = "IMAP: -"
+pop3_idle = "POP3: -"
+smtp_pass = "SMTP: BESTANDEN"
+imap_pass = "IMAP: BESTANDEN"
+pop3_pass = "POP3: BESTANDEN"
+smtp_fail = "SMTP: FEHLER"
+imap_fail = "IMAP: FEHLER"
+pop3_fail = "POP3: FEHLER"
+smtp_skip = "SMTP: übersprungen"
+imap_skip = "IMAP: übersprungen"
+pop3_skip = "POP3: übersprungen"
+
+[ui.diagnose]
+intro = "Füge unten den Inhalt einer Zustellfehler-Nachricht ein, um IT-handlungsfähige Hinweise zu extrahieren.  Erkennt SMTP-Enhanced-Status-Codes (5.7.139, 5.7.60), Microsoft-365-Wendungen (\"basic authentication is disabled\") und Webmail-Bounces wie Gmails \"Send mail as / Mail sturen als\".  Nichts geht über das Netzwerk und der Text wird nicht auf der Festplatte gespeichert."
+input_placeholder = "Füge hier den Bounce-Inhalt ein..."
+analyse = "Analysieren"
+clear = "Leeren"
+hints_heading = "Hinweise"
+no_hints_yet = "(noch keine Hinweise - füge oben einen Bounce ein und klicke auf Analysieren)"
+
+[ui.log]
+heading = "Log"
+
+[diagnostics.scaffold]
+esc_prefix = "ESC {code}: {what}"
+action_prefix = "  -> Aktion: {fix}"
+hint_prefix = "  -> {hint}"
+
+[diagnostics.smtp.esc.5_7_0]
+what = "Authentifizierung erforderlich oder gewählter AUTH-Mechanismus nicht erlaubt."
+fix  = "Aktiviere SMTP AUTH für die Mailbox; prüfe, ob LOGIN / PLAIN / XOAUTH2 erlaubt sind."
+
+[diagnostics.smtp.esc.5_7_1]
+what = "Relay-Zugriff verweigert - der Server weigert sich, diese Nachricht weiterzuleiten."
+fix  = "Entweder ist der Absender nicht authentifiziert, der Empfänger ist extern und Relaying ist deaktiviert, oder eine Transport Rule blockiert die Nachricht."
+
+[diagnostics.smtp.esc.5_7_3]
+what = "Authentifizierung fehlgeschlagen."
+fix  = "Falsches Passwort, MFA aktiviert ohne App-Passwort, oder Basic/Legacy Auth auf dem Tenant deaktiviert (O365: 'SMTP AUTH disabled')."
+
+[diagnostics.smtp.esc.5_7_8]
+what = "Authentifizierungsdaten ungültig."
+fix  = "Benutzername/Passwort von der SASL-Schicht abgelehnt."
+
+[diagnostics.smtp.esc.5_7_57]
+what = "Der Client war bei MAIL FROM nicht authentifiziert, um anonyme Mail zu senden."
+fix  = "Erzwinge STARTTLS + AUTH vor MAIL FROM.  In O365 ist dies der typische Fehler, wenn sich der Client ohne AUTH verbindet."
+
+[diagnostics.smtp.esc.5_7_60]
+what = "SendAsDenied - der authentifizierte Benutzer darf nicht ALS diese From-Adresse senden."
+fix  = "Gewähre der Mailbox 'Send As'- (oder 'Send on Behalf'-)Rechte für das authentifizierte Konto, oder ändere den From-Header so, dass er mit dem Login übereinstimmt."
+
+[diagnostics.smtp.esc.5_7_64]
+what = "TenantAttribution; Relay Access Denied."
+fix  = "Authentifizierte SMTP-Submission erfordert eine lizenzierte Mailbox in O365."
+
+[diagnostics.smtp.esc.5_7_124]
+what = "Der Benutzer ist nicht berechtigt, Mail zu senden."
+fix  = "Deaktivierte Mailbox, durch Conditional Access blockiert, oder Lizenz fehlt."
+
+[diagnostics.smtp.esc.5_7_135]
+what = "Authentifizierung fehlgeschlagen, die Benutzerdaten sind abgelaufen."
+fix  = "Passwort zurücksetzen / OAuth-Token erneuern."
+
+[diagnostics.smtp.esc.5_7_139]
+what = "Authentifizierung fehlgeschlagen; die Anfrage erfüllte die Kriterien nicht."
+fix  = "Eine Conditional-Access-Richtlinie verweigerte den Login (Ort, Gerät, MFA)."
+
+[diagnostics.smtp.esc.5_7_500]
+what = "Zugriff verweigert, sendende Domain deaktiviert."
+fix  = "Die Domain des Absenders ist für ausgehende Mail auf diesem Tenant blockiert."
+
+[diagnostics.smtp.esc.5_7_501]
+what = "Zugriff verweigert, gesperrter Absender."
+fix  = "Die Absenderadresse steht auf einer Tenant-Blockliste."
+
+[diagnostics.smtp.esc.5_7_508]
+what = "Zugriff verweigert, Geschwindigkeits- oder Verkehrsschwelle überschritten."
+fix  = "Gedrosselt; warte und versuche es erneut, oder bitte den Admin, das Limit zu erhöhen."
+
+[diagnostics.smtp.esc.5_7_511]
+what = "Zugriff verweigert, gesperrter Absender."
+fix  = "Der Absender wurde als Spam-Quelle markiert."
+
+[diagnostics.smtp.esc.5_7_606]
+what = "Zugriff verweigert, gesperrte sendende IP-Adresse."
+fix  = "Die sendende IP-Adresse steht auf einer Microsoft-Blockliste."
+
+[diagnostics.smtp.esc.5_7_708]
+what = "Dienst verweigert.  Quell-IP hat schlechten Ruf."
+fix  = "Sende von einer anderen IP-Adresse oder beantrage Delisting."
+
+[diagnostics.smtp.esc.5_7_750]
+what = "Client für das Senden von nicht registrierten Domains blockiert."
+fix  = "Verifiziere die Absenderdomain im Tenant oder verwende eine akzeptierte Domain."
+
+[diagnostics.smtp.esc.5_1_0]
+what = "Absenderadresse abgelehnt."
+fix  = "From/MAIL FROM nicht akzeptiert; meist Format- oder Domainrichtlinie."
+
+[diagnostics.smtp.esc.5_1_1]
+what = "Falsche Ziel-Mailbox - Empfänger existiert nicht."
+fix  = "Überprüfe die Empfängeradresse."
+
+[diagnostics.smtp.esc.5_1_7]
+what = "Ungültige Absenderadresse (fehlerhaft)."
+fix  = "Korrigiere die MAIL-FROM-Syntax."
+
+[diagnostics.smtp.esc.5_1_8]
+what = "Absenderdomain nicht erlaubt."
+fix  = "Domain vom Server nicht akzeptiert."
+
+[diagnostics.smtp.esc.5_1_10]
+what = "Empfängeradresse abgelehnt - Benutzer unbekannt."
+fix  = "Tippfehler oder nicht existierender Empfänger."
+
+[diagnostics.smtp.esc.5_4_1]
+what = "Empfängeradresse abgelehnt: Zugriff verweigert."
+fix  = "Die Empfänger-Mailbox lehnt Nachrichten von diesem Absender / dieser Domain ab."
+
+[diagnostics.smtp.esc.5_2_1]
+what = "Mailbox deaktiviert, akzeptiert keine Nachrichten."
+fix  = "Empfänger-Mailbox gesperrt."
+
+[diagnostics.smtp.esc.5_2_2]
+what = "Mailbox voll."
+fix  = "Empfänger-Kontingent überschritten."
+
+[diagnostics.smtp.esc.5_3_4]
+what = "Nachricht zu groß für das System."
+fix  = "Reduziere die Nachrichtengröße."
+
+[diagnostics.smtp.esc.4_7_0]
+what = "Vorübergehender Authentifizierungsfehler / Throttling."
+fix  = "Versuche es später erneut; kann auch ein Tarpit für wiederholte fehlerhafte Logins sein."
+
+[diagnostics.smtp.esc.4_4_2]
+what = "Verbindung getrennt."
+fix  = "Netzwerk-Aussetzer oder Serverneustart; erneut versuchen."
+
+[diagnostics.smtp.esc.4_3_2]
+what = "System akzeptiert keine Netzwerk-Nachrichten."
+fix  = "Server-Wartung."
+
+[diagnostics.imap.AUTHENTICATIONFAILED]
+hint = "IMAP-Login abgelehnt - falsches Passwort, MFA ohne App-Passwort, oder Basic Auth deaktiviert."
+
+[diagnostics.imap."LOGIN_failed"]
+hint = "IMAP-Login vom Server abgelehnt."
+
+[diagnostics.imap.ALERT]
+hint = "Der Server gab eine ALERT-Antwort - lies sie; administratorseitig festgelegte Meldung."
+
+[diagnostics.imap.UNAVAILABLE]
+hint = "Mailbox/Server vorübergehend nicht verfügbar."
+
+[diagnostics.imap.PRIVACYREQUIRED]
+hint = "Der Server erfordert TLS vor LOGIN - verwende STARTTLS oder implizites SSL."
+
+[diagnostics.imap.CLIENTBUG]
+hint = "Der Client hat etwas getan, was der Server für falsch hält; meist fehlendes STARTTLS oder falscher Zustand."
+
+[diagnostics.imap.LOGINDISABLED]
+hint = "Plain LOGIN ist auf diesem Server deaktiviert - verwende STARTTLS/SSL oder XOAUTH2."
+
+[diagnostics.pop.authentication_failed]
+hint = "POP3-Login abgelehnt - falsche Anmeldedaten oder POP für diese Mailbox deaktiviert."
+
+[diagnostics.pop.logon_failure]
+hint = "POP3-Login abgelehnt."
+
+[diagnostics.pop.not_implemented]
+hint = "Der Server unterstützt den ausgegebenen Befehl nicht."
+
+[diagnostics.pop.disabled]
+hint = "POP3-Zugriff ist für dieses Konto / diesen Tenant deaktiviert."
+
+[diagnostics.bounce.gmail_send_as_en]
+needle = "Send mail as"
+hint = "Gmails 'Send mail as'-Upstream-Login fehlgeschlagen.  Einstellungen > Alle Einstellungen anzeigen > Konten und Import > Mail senden als > Informationen bearbeiten > SMTP-Passwort erneut eingeben (oder ein App-Passwort, wenn das Quellkonto 2FA verwendet)."
+
+[diagnostics.bounce.gmail_send_as_nl]
+needle = "Mail sturen als"
+hint = "Gmails 'Mail sturen als' (Send mail as) - Upstream-Login fehlgeschlagen.  Einstellungen > Alle Einstellungen anzeigen > Konten und Import > Mail senden als > Informationen bearbeiten > SMTP-Passwort erneut eingeben (oder ein App-Passwort, wenn das Quellkonto 2FA verwendet)."
+
+[cli.prompt]
+username = "Benutzername / E-Mail: "
+password = "Passwort: "
