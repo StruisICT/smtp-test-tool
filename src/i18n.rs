@@ -167,20 +167,57 @@ fn normalise(code: &str) -> String {
         .to_lowercase()
 }
 
+// =========================================================================
+// Test-only helpers
+// =========================================================================
+// `set_locale` mutates global state (the active locale).  Cargo runs tests
+// in parallel by default, so any two tests that each set a locale and read
+// strings can interleave and see each other's locale.  Solution: a
+// process-wide mutex that tests acquire before touching the locale.  The
+// mutex itself is exposed via `LocaleTestGuard` so a test only needs to
+// write `let _g = LocaleTestGuard::set("nl");`.
+//
+// Non-locale tests are unaffected and continue to run in parallel.
 #[cfg(test)]
-mod tests {
-    use super::*;
+pub(crate) mod testing {
+    use super::{set_locale, BASE};
+    use std::sync::{Mutex, MutexGuard, OnceLock};
 
-    /// Reset the global locale at the end of each test so cargo's
-    /// parallel runner does not leak state between tests.  Drop order
-    /// (LIFO inside one #[test] fn) guarantees this runs after the
-    /// assertions even on panic.
-    struct ResetGuard;
-    impl Drop for ResetGuard {
+    fn lock() -> &'static Mutex<()> {
+        static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
+        LOCK.get_or_init(|| Mutex::new(()))
+    }
+
+    /// Serialises every test that touches the active locale.  Hold the
+    /// returned guard for the duration of the assertions; on drop the
+    /// active locale is reset to [`BASE`] and the mutex is released.
+    pub struct LocaleTestGuard {
+        _lock: MutexGuard<'static, ()>,
+    }
+
+    impl LocaleTestGuard {
+        /// Acquire the lock, then switch the active locale to `code`.
+        /// Poisoned mutexes are recovered transparently - a panicking
+        /// test must not deadlock every other locale-dependent test.
+        pub fn set(code: &str) -> Self {
+            let lock = lock().lock().unwrap_or_else(|p| p.into_inner());
+            set_locale(code);
+            Self { _lock: lock }
+        }
+    }
+
+    impl Drop for LocaleTestGuard {
         fn drop(&mut self) {
             set_locale(BASE);
         }
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use super::testing::LocaleTestGuard;
 
     #[test]
     fn base_locale_is_always_supported() {
@@ -198,17 +235,15 @@ mod tests {
 
     #[test]
     fn unsupported_locale_falls_back_to_base() {
-        let _g = ResetGuard;
-        set_locale("klingon");
+        let _g = LocaleTestGuard::set("klingon");
         assert_eq!(current_locale(), BASE);
     }
 
     #[test]
     fn t_falls_back_to_base_when_key_missing_in_active_locale() {
-        let _g = ResetGuard;
         // 'app.name' is intentionally defined ONLY in en.toml; nl.toml
         // omits it on purpose so this test exercises the fallback.
-        set_locale("nl");
+        let _g = LocaleTestGuard::set("nl");
         let s = t("app.name");
         assert!(
             !s.is_empty() && s != "app.name",
@@ -218,7 +253,7 @@ mod tests {
 
     #[test]
     fn t_returns_literal_key_for_unknown_anywhere() {
-        let _g = ResetGuard;
+        let _g = LocaleTestGuard::set(BASE);
         let s = t("this.key.does.not.exist.anywhere");
         assert_eq!(s, "this.key.does.not.exist.anywhere");
     }
@@ -226,8 +261,7 @@ mod tests {
     #[test]
     fn t_with_substitutes_placeholders() {
         // Synthetic test; en.toml ships 'test.fixture.greeting' = "Hello, {name}!".
-        let _g = ResetGuard;
-        set_locale("en");
+        let _g = LocaleTestGuard::set("en");
         let s = t_with("test.fixture.greeting", &[("name", "world")]);
         assert_eq!(s, "Hello, world!");
     }

@@ -304,7 +304,7 @@ hint = "Gmail's 'Send mail as' upstream login failed.  Settings > See all settin
 
 [diagnostics.bounce.gmail_send_as_nl]
 needle = "Mail sturen als"
-hint = "Gmail 'Mail sturen als' upstream-login mislukt.  Instellingen > Alle instellingen weergeven > Accounts en import > Mail sturen als > Gegevens bewerken > voer het SMTP-wachtwoord opnieuw in (of een app-wachtwoord als het bronaccount 2FA gebruikt)."
+hint = "Gmail's 'Mail sturen als' (Send mail as) upstream login failed.  Settings > See all settings > Accounts and Import > Send mail as > Edit info > re-enter the SMTP password (or an app-password if the source account has 2FA)."
 
 # ===========================================================================
 # CLI-only strings (prompts; --help text stays compile-time English)
