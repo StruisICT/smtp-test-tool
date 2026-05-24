@@ -44,6 +44,15 @@ Uses the Win32 `PrintWindow` API with `PW_RENDERFULLCONTENT`, which
 reads pixels from the window's own GL surface.  Works under
 overlapping windows; never captures any other desktop area.
 
+**Requires an interactive desktop session.**  PowerShell sessions
+started over WinRM, SSH (without a logged-in console session), or any
+"session 0" service context cannot capture GL surfaces - both
+`PrintWindow` and the `CopyFromScreen` fallback will return an empty
+bitmap.  Run the script from a logged-in RDP or physical console
+session.  The script samples the captured bitmap for pixel diversity
+and warns when the surface looks empty so you don't accidentally
+commit blank PNGs.
+
 ### Linux (X11)
 
 ```sh
@@ -77,3 +86,19 @@ would require a virtual display server (Xvfb) plus xdotool on the
 ubuntu-latest runner.  Open a PR if you want this - the matrix would
 run the Linux variant of the script and diff the output against the
 committed PNGs.
+
+### Verifying after capture
+
+After regenerating, open the PNGs and confirm they show the current
+GUI (with whatever new tabs / buttons the change adds).  An
+`identify`-style sanity check from a shell:
+
+```sh
+# A real screenshot is > ~30 KB; a blank GL surface compresses to
+# under 10 KB.  Reject anything below that and re-run from an
+# interactive desktop.
+for f in docs/screenshots/gui-*.png; do
+  size=$(stat -c%s "$f" 2>/dev/null || stat -f%z "$f")
+  [ "$size" -lt 15000 ] && echo "$f looks empty ($size bytes)" && exit 1
+done
+```
