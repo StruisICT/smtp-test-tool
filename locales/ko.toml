@@ -1,0 +1,275 @@
+# smtp-test-tool locale: 한국어 (ko)
+# status: machine-translated, native review welcome.
+
+[app]
+name = "SMTP Test Tool"
+
+[locale]
+native_name = "한국어"
+english_name = "Korean"
+status_note = "기계 번역 - 원어민 검토 환영합니다."
+
+[ui.window]
+title = "SMTP 테스트 도구"
+
+[ui.topbar]
+profile_label = "프로필:"
+save_config = "구성 저장"
+save_config_tooltip = "활성 프로필을 실행 파일 옆의 구성 파일에 다시 씁니다."
+provider_preset = "제공업체 사전 설정..."
+provider_preset_tooltip = "선별된 제공업체 사전 설정 중 하나를 아래의 호스트 / 포트 / 보안 필드에 적용합니다."
+config_path_none = "구성 파일 없음"
+
+[ui.tab]
+servers = "서버"
+send_mail = "메일 보내기"
+tls_auth = "TLS / Auth"
+advanced = "고급"
+diagnose = "반송 분석"
+
+[ui.servers]
+username = "사용자 이름:"
+password = "비밀번호:"
+show = "표시"
+oauth_token = "OAuth 토큰:"
+oauth_hint = "(XOAUTH2, 선택 사항)"
+save_to_keychain = "비밀번호를 키체인에 저장"
+save_to_keychain_tooltip = "비밀번호를 OS 키체인 (Windows Credential Manager / macOS Keychain / Linux Secret Service) 에 저장합니다. 구성 파일에는 절대 기록되지 않습니다."
+forget_keychain = "키체인 항목 삭제"
+forget_keychain_tooltip = "OS 키체인에서 이 사용자의 smtp-test-tool 항목을 삭제합니다. 위의 비밀번호 필드도 비워집니다."
+loaded_from_keychain = "(키체인에서 로드됨)"
+
+[ui.proto]
+test_smtp = "SMTP 테스트"
+test_imap = "IMAP 테스트"
+test_pop3 = "POP3 테스트"
+host = "호스트:"
+port = "포트:"
+security = "보안:"
+security_none = "없음"
+security_starttls = "starttls"
+security_ssl = "ssl"
+
+[ui.send]
+toggle = "실제로 테스트 메일 보내기 (그렇지 않으면 AUTH만 테스트)"
+mail_from = "MAIL FROM (봉투):"
+from_header = "From: (헤더):"
+to = "받는 사람 (쉼표로 구분):"
+cc = "참조 (쉼표로 구분):"
+bcc = "숨은 참조 (쉼표로 구분):"
+reply_to = "회신:"
+subject = "제목:"
+body = "내용:"
+
+[ui.tls]
+auth_mech = "SMTP AUTH 메커니즘:"
+insecure = "인증서 확인 비활성화 (안전하지 않음 - 테스트 전용)"
+ca_bundle = "CA 번들 (PEM):"
+
+[ui.advanced]
+timeout = "시간 초과 (초):"
+ehlo = "EHLO/HELO 이름:"
+imap_folder = "IMAP 폴더:"
+log_level = "로그 수준:"
+theme = "테마:"
+language = "언어:"
+language_unsupported = "OS 로케일 ({code}) 이 아직 번역되지 않았습니다. 텍스트가 영어로 표시됩니다; 기여를 환영합니다."
+theme_follow_os = "OS 따르기 ({hint})"
+theme_dark = "어두움"
+theme_light = "밝음"
+
+[ui.actions]
+run_test = "테스트 실행"
+running = "실행 중..."
+clear_log = "로그 지우기"
+
+[ui.status]
+smtp_idle = "SMTP: -"
+imap_idle = "IMAP: -"
+pop3_idle = "POP3: -"
+smtp_pass = "SMTP: 통과"
+imap_pass = "IMAP: 통과"
+pop3_pass = "POP3: 통과"
+smtp_fail = "SMTP: 실패"
+imap_fail = "IMAP: 실패"
+pop3_fail = "POP3: 실패"
+smtp_skip = "SMTP: 건너뜀"
+imap_skip = "IMAP: 건너뜀"
+pop3_skip = "POP3: 건너뜀"
+
+[ui.diagnose]
+intro = "배달 실패 본문을 아래에 붙여넣어 IT 가 실행 가능한 힌트를 추출합니다. SMTP enhanced status codes (5.7.139, 5.7.60), Microsoft 365 문구 (\"basic authentication is disabled\"), Gmail 의 \"Send mail as / Mail sturen als\" 와 같은 웹메일 측 반송을 인식합니다. 네트워크를 통해 아무것도 전송되지 않으며 텍스트는 디스크에 저장되지 않습니다."
+input_placeholder = "여기에 반송 본문 붙여넣기..."
+analyse = "분석"
+clear = "지우기"
+hints_heading = "힌트"
+no_hints_yet = "(아직 힌트 없음 - 위에 반송을 붙여넣고 분석을 클릭)"
+
+[ui.log]
+heading = "로그"
+
+[diagnostics.scaffold]
+esc_prefix = "ESC {code}: {what}"
+action_prefix = "  -> 작업: {fix}"
+hint_prefix = "  -> {hint}"
+
+[diagnostics.smtp.esc.5_7_0]
+what = "인증이 필요하거나 선택한 AUTH 메커니즘이 허용되지 않습니다."
+fix  = "사서함에 대해 SMTP AUTH 를 활성화하십시오; LOGIN / PLAIN / XOAUTH2 가 허용되는지 확인하십시오."
+
+[diagnostics.smtp.esc.5_7_1]
+what = "Relay 액세스 거부됨 - 서버가 이 메시지 전달을 거부합니다."
+fix  = "발신자가 인증되지 않았거나, 수신자가 외부이고 relay 가 비활성화되어 있거나, transport rule 이 메시지를 차단하고 있습니다."
+
+[diagnostics.smtp.esc.5_7_3]
+what = "인증 실패."
+fix  = "잘못된 비밀번호, app-password 없이 MFA, 또는 테넌트에서 Basic/Legacy auth 가 비활성화됨 (O365: 'SMTP AUTH disabled')."
+
+[diagnostics.smtp.esc.5_7_8]
+what = "인증 자격 증명이 유효하지 않음."
+fix  = "SASL 계층에서 사용자 이름/비밀번호가 거부됨."
+
+[diagnostics.smtp.esc.5_7_57]
+what = "MAIL FROM 중에 익명 메일을 보내기 위해 클라이언트가 인증되지 않았습니다."
+fix  = "MAIL FROM 전에 STARTTLS + AUTH 를 강제하십시오. O365 에서는 클라이언트가 AUTH 없이 연결할 때 일반적인 오류입니다."
+
+[diagnostics.smtp.esc.5_7_60]
+what = "SendAsDenied - 인증된 사용자가 이 From 주소로 보낼 수 없습니다."
+fix  = "사서함에 인증된 계정에 대한 'Send As' (또는 'Send on Behalf') 권한을 부여하거나 로그인과 일치하도록 From 헤더를 변경하십시오."
+
+[diagnostics.smtp.esc.5_7_64]
+what = "TenantAttribution; Relay Access Denied."
+fix  = "인증된 SMTP 제출은 O365 에서 라이선스가 있는 사서함이 필요합니다."
+
+[diagnostics.smtp.esc.5_7_124]
+what = "사용자가 메일을 보낼 권한이 없습니다."
+fix  = "비활성화된 사서함, Conditional Access 에 의해 차단됨, 또는 라이선스 누락."
+
+[diagnostics.smtp.esc.5_7_135]
+what = "인증 실패, 사용자 자격 증명이 만료되었습니다."
+fix  = "비밀번호 재설정 / OAuth 토큰 새로 고침."
+
+[diagnostics.smtp.esc.5_7_139]
+what = "인증 실패; 요청이 기준을 충족하지 않았습니다."
+fix  = "Conditional Access 정책이 로그인을 거부했습니다 (위치, 장치, MFA)."
+
+[diagnostics.smtp.esc.5_7_500]
+what = "액세스 거부됨, 발신 도메인이 비활성화됨."
+fix  = "발신자의 도메인은 이 테넌트에서 보내는 메일이 차단되었습니다."
+
+[diagnostics.smtp.esc.5_7_501]
+what = "액세스 거부됨, 차단된 발신자."
+fix  = "발신자의 주소가 테넌트의 blocklist 에 있습니다."
+
+[diagnostics.smtp.esc.5_7_508]
+what = "액세스 거부됨, 속도 또는 트래픽 임계값 초과."
+fix  = "Throttled; 기다린 후 다시 시도하거나 관리자에게 한도를 높이도록 요청하십시오."
+
+[diagnostics.smtp.esc.5_7_511]
+what = "액세스 거부됨, 차단된 발신자."
+fix  = "발신자가 스팸 출처로 표시됨."
+
+[diagnostics.smtp.esc.5_7_606]
+what = "액세스 거부됨, 차단된 발신 IP."
+fix  = "발신 IP 가 Microsoft 의 blocklist 에 있습니다."
+
+[diagnostics.smtp.esc.5_7_708]
+what = "서비스 거부됨. 소스 IP 평판이 나쁩니다."
+fix  = "다른 IP 에서 보내거나 delisting 을 요청하십시오."
+
+[diagnostics.smtp.esc.5_7_750]
+what = "등록되지 않은 도메인에서 보내는 것이 차단됨."
+fix  = "테넌트에서 발신자 도메인을 확인하거나 허용된 도메인을 사용하십시오."
+
+[diagnostics.smtp.esc.5_1_0]
+what = "발신자 주소 거부됨."
+fix  = "From/MAIL FROM 이 수락되지 않음; 보통 형식 또는 도메인 정책 문제."
+
+[diagnostics.smtp.esc.5_1_1]
+what = "잘못된 대상 사서함 - 수신자가 존재하지 않습니다."
+fix  = "수신자 주소를 확인하십시오."
+
+[diagnostics.smtp.esc.5_1_7]
+what = "잘못된 발신자 주소 (형식 오류)."
+fix  = "MAIL FROM 구문을 수정하십시오."
+
+[diagnostics.smtp.esc.5_1_8]
+what = "발신자 도메인이 허용되지 않습니다."
+fix  = "서버가 도메인을 수락하지 않습니다."
+
+[diagnostics.smtp.esc.5_1_10]
+what = "수신자 주소 거부됨 - 사용자 알 수 없음."
+fix  = "오타 또는 존재하지 않는 수신자."
+
+[diagnostics.smtp.esc.5_4_1]
+what = "수신자 주소 거부됨: 액세스 거부됨."
+fix  = "수신자의 사서함이 이 발신자 / 도메인의 메시지를 거부합니다."
+
+[diagnostics.smtp.esc.5_2_1]
+what = "사서함이 비활성화됨, 메시지를 수락하지 않음."
+fix  = "수신자의 사서함이 일시 중지됨."
+
+[diagnostics.smtp.esc.5_2_2]
+what = "사서함이 가득 참."
+fix  = "수신자 할당량 초과."
+
+[diagnostics.smtp.esc.5_3_4]
+what = "메시지가 시스템에 비해 너무 큼."
+fix  = "메시지 크기를 줄이십시오."
+
+[diagnostics.smtp.esc.4_7_0]
+what = "일시적 인증 실패 / throttling."
+fix  = "나중에 다시 시도하십시오; 반복된 잘못된 로그인에 대한 tarpit 일 수도 있습니다."
+
+[diagnostics.smtp.esc.4_4_2]
+what = "연결 끊김."
+fix  = "네트워크 문제 또는 서버 재시작; 다시 시도하십시오."
+
+[diagnostics.smtp.esc.4_3_2]
+what = "시스템이 네트워크 메시지를 수락하지 않습니다."
+fix  = "서버 유지보수."
+
+[diagnostics.imap.AUTHENTICATIONFAILED]
+hint = "IMAP 로그인 거부됨 - 잘못된 비밀번호, app-password 없이 MFA, 또는 Basic Auth 비활성화."
+
+[diagnostics.imap."LOGIN_failed"]
+hint = "IMAP 로그인이 서버에 의해 거부되었습니다."
+
+[diagnostics.imap.ALERT]
+hint = "서버가 ALERT 응답을 반환했습니다 - 읽으십시오; 관리자가 정의한 메시지."
+
+[diagnostics.imap.UNAVAILABLE]
+hint = "사서함/서버 일시적으로 사용 불가."
+
+[diagnostics.imap.PRIVACYREQUIRED]
+hint = "서버는 LOGIN 전에 TLS 가 필요합니다 - STARTTLS 또는 암시적 SSL 을 사용하십시오."
+
+[diagnostics.imap.CLIENTBUG]
+hint = "클라이언트가 서버가 잘못된 것으로 간주하는 작업을 수행했습니다; 보통 STARTTLS 누락 또는 잘못된 상태."
+
+[diagnostics.imap.LOGINDISABLED]
+hint = "이 서버에서 Plain LOGIN 이 비활성화됨 - STARTTLS/SSL 또는 XOAUTH2 를 사용하십시오."
+
+[diagnostics.pop.authentication_failed]
+hint = "POP3 로그인 거부됨 - 잘못된 자격 증명 또는 이 사서함에서 POP 비활성화."
+
+[diagnostics.pop.logon_failure]
+hint = "POP3 로그인 거부됨."
+
+[diagnostics.pop.not_implemented]
+hint = "서버가 발행된 명령을 지원하지 않습니다."
+
+[diagnostics.pop.disabled]
+hint = "이 계정 / 테넌트에 대해 POP3 액세스가 비활성화됨."
+
+[diagnostics.bounce.gmail_send_as_en]
+needle = "Send mail as"
+hint = "Gmail 의 'Send mail as' 업스트림 로그인이 실패했습니다. 설정 > 모든 설정 보기 > 계정 및 가져오기 > 다른 주소에서 메일 보내기 > 정보 수정 > SMTP 비밀번호를 다시 입력하십시오 (소스 계정에 2FA 가 있는 경우 app-password)."
+
+[diagnostics.bounce.gmail_send_as_nl]
+needle = "Mail sturen als"
+hint = "Gmail 의 'Mail sturen als' (Send mail as) 업스트림 로그인이 실패했습니다. 설정 > 모든 설정 보기 > 계정 및 가져오기 > 다른 주소에서 메일 보내기 > 정보 수정 > SMTP 비밀번호를 다시 입력하십시오 (소스 계정에 2FA 가 있는 경우 app-password)."
+
+[cli.prompt]
+username = "사용자 이름 / 이메일: "
+password = "비밀번호: "

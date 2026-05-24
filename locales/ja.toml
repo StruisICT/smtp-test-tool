@@ -1,0 +1,275 @@
+# smtp-test-tool locale: 日本語 (ja)
+# status: machine-translated, native review welcome.
+
+[app]
+name = "SMTP Test Tool"
+
+[locale]
+native_name = "日本語"
+english_name = "Japanese"
+status_note = "機械翻訳 - ネイティブスピーカーによるレビューを歓迎します。"
+
+[ui.window]
+title = "SMTP テストツール"
+
+[ui.topbar]
+profile_label = "プロファイル:"
+save_config = "設定を保存"
+save_config_tooltip = "アクティブなプロファイルを実行ファイルの隣の設定ファイルに書き戻します。"
+provider_preset = "プロバイダープリセット..."
+provider_preset_tooltip = "厳選されたプロバイダープリセットの 1 つを下のホスト / ポート / セキュリティフィールドに適用します。"
+config_path_none = "設定ファイルなし"
+
+[ui.tab]
+servers = "サーバー"
+send_mail = "メール送信"
+tls_auth = "TLS / Auth"
+advanced = "詳細"
+diagnose = "バウンス解析"
+
+[ui.servers]
+username = "ユーザー名:"
+password = "パスワード:"
+show = "表示"
+oauth_token = "OAuth トークン:"
+oauth_hint = "(XOAUTH2, オプション)"
+save_to_keychain = "キーチェーンにパスワードを保存"
+save_to_keychain_tooltip = "パスワードを OS のキーチェーン (Windows Credential Manager / macOS Keychain / Linux Secret Service) に保存します。設定ファイルには絶対に書き込まれません。"
+forget_keychain = "キーチェーンエントリを削除"
+forget_keychain_tooltip = "このユーザーの smtp-test-tool エントリを OS のキーチェーンから削除します。上のパスワードフィールドもクリアされます。"
+loaded_from_keychain = "(キーチェーンから読み込み)"
+
+[ui.proto]
+test_smtp = "SMTP をテスト"
+test_imap = "IMAP をテスト"
+test_pop3 = "POP3 をテスト"
+host = "ホスト:"
+port = "ポート:"
+security = "セキュリティ:"
+security_none = "なし"
+security_starttls = "starttls"
+security_ssl = "ssl"
+
+[ui.send]
+toggle = "実際にテストメールを送信する (それ以外は AUTH のみテスト)"
+mail_from = "MAIL FROM (エンベロープ):"
+from_header = "From: (ヘッダー):"
+to = "宛先 (カンマ区切り):"
+cc = "Cc (カンマ区切り):"
+bcc = "Bcc (カンマ区切り):"
+reply_to = "返信先:"
+subject = "件名:"
+body = "本文:"
+
+[ui.tls]
+auth_mech = "SMTP AUTH メカニズム:"
+insecure = "証明書検証を無効化 (危険 - テストのみ)"
+ca_bundle = "CA バンドル (PEM):"
+
+[ui.advanced]
+timeout = "タイムアウト (秒):"
+ehlo = "EHLO/HELO 名:"
+imap_folder = "IMAP フォルダー:"
+log_level = "ログレベル:"
+theme = "テーマ:"
+language = "言語:"
+language_unsupported = "お使いの OS のロケール ({code}) はまだ翻訳されていません。テキストは英語で表示されます;貢献を歓迎します。"
+theme_follow_os = "OS に従う ({hint})"
+theme_dark = "ダーク"
+theme_light = "ライト"
+
+[ui.actions]
+run_test = "テスト実行"
+running = "実行中..."
+clear_log = "ログをクリア"
+
+[ui.status]
+smtp_idle = "SMTP: -"
+imap_idle = "IMAP: -"
+pop3_idle = "POP3: -"
+smtp_pass = "SMTP: 合格"
+imap_pass = "IMAP: 合格"
+pop3_pass = "POP3: 合格"
+smtp_fail = "SMTP: 失敗"
+imap_fail = "IMAP: 失敗"
+pop3_fail = "POP3: 失敗"
+smtp_skip = "SMTP: スキップ"
+imap_skip = "IMAP: スキップ"
+pop3_skip = "POP3: スキップ"
+
+[ui.diagnose]
+intro = "配信失敗メッセージの本文を下に貼り付けて、IT 担当者が対応できるヒントを抽出します。SMTP enhanced status codes (5.7.139、5.7.60)、Microsoft 365 のフレーズ (\"basic authentication is disabled\")、Gmail の \"Send mail as / Mail sturen als\" などのウェブメール側のバウンスを認識します。ネットワーク経由で何も送信されず、テキストはディスクに保存されません。"
+input_placeholder = "ここにバウンスの本文を貼り付け..."
+analyse = "解析"
+clear = "クリア"
+hints_heading = "ヒント"
+no_hints_yet = "(ヒントはまだありません - 上にバウンスを貼り付けて「解析」をクリック)"
+
+[ui.log]
+heading = "ログ"
+
+[diagnostics.scaffold]
+esc_prefix = "ESC {code}: {what}"
+action_prefix = "  -> アクション: {fix}"
+hint_prefix = "  -> {hint}"
+
+[diagnostics.smtp.esc.5_7_0]
+what = "認証が必要、または選択された AUTH メカニズムが許可されていません。"
+fix  = "メールボックスに対して SMTP AUTH を有効にします;LOGIN / PLAIN / XOAUTH2 が許可されていることを確認します。"
+
+[diagnostics.smtp.esc.5_7_1]
+what = "Relay アクセスが拒否されました - サーバーがこのメッセージの転送を拒否しています。"
+fix  = "送信者が認証されていない、受信者が外部で relay が無効、または transport rule がメッセージをブロックしているかのいずれかです。"
+
+[diagnostics.smtp.esc.5_7_3]
+what = "認証に失敗しました。"
+fix  = "パスワードが間違っている、MFA が有効で app-password なし、またはテナントで Basic/Legacy auth が無効 (O365: 'SMTP AUTH disabled')。"
+
+[diagnostics.smtp.esc.5_7_8]
+what = "認証資格情報が無効です。"
+fix  = "ユーザー名/パスワードが SASL レイヤーで拒否されました。"
+
+[diagnostics.smtp.esc.5_7_57]
+what = "クライアントは MAIL FROM 中に匿名メール送信のために認証されていませんでした。"
+fix  = "MAIL FROM の前に STARTTLS + AUTH を強制します。O365 では、クライアントが AUTH なしで接続した場合の典型的なエラーです。"
+
+[diagnostics.smtp.esc.5_7_60]
+what = "SendAsDenied - 認証されたユーザーはこの From アドレスとして送信できません。"
+fix  = "メールボックスに認証されたアカウントの 'Send As' (または 'Send on Behalf') 権限を付与するか、From ヘッダーをログインと一致するように変更します。"
+
+[diagnostics.smtp.esc.5_7_64]
+what = "TenantAttribution; Relay Access Denied。"
+fix  = "認証された SMTP 送信には O365 でライセンスされたメールボックスが必要です。"
+
+[diagnostics.smtp.esc.5_7_124]
+what = "ユーザーはメール送信を許可されていません。"
+fix  = "無効化されたメールボックス、Conditional Access によってブロック、またはライセンスがありません。"
+
+[diagnostics.smtp.esc.5_7_135]
+what = "認証に失敗しました、ユーザー資格情報の有効期限が切れています。"
+fix  = "パスワードをリセット / OAuth トークンを更新します。"
+
+[diagnostics.smtp.esc.5_7_139]
+what = "認証に失敗しました;リクエストが基準を満たしませんでした。"
+fix  = "Conditional Access ポリシーがログインを拒否しました (場所、デバイス、MFA)。"
+
+[diagnostics.smtp.esc.5_7_500]
+what = "アクセスが拒否されました、送信ドメインが無効化されています。"
+fix  = "送信者のドメインはこのテナントで送信メールがブロックされています。"
+
+[diagnostics.smtp.esc.5_7_501]
+what = "アクセスが拒否されました、禁止された送信者。"
+fix  = "送信者のアドレスがテナントの blocklist にあります。"
+
+[diagnostics.smtp.esc.5_7_508]
+what = "アクセスが拒否されました、レートまたはトラフィックしきい値を超えました。"
+fix  = "Throttled;待ってから再試行するか、管理者にリミットを上げるよう依頼してください。"
+
+[diagnostics.smtp.esc.5_7_511]
+what = "アクセスが拒否されました、禁止された送信者。"
+fix  = "送信者がスパム源としてマークされています。"
+
+[diagnostics.smtp.esc.5_7_606]
+what = "アクセスが拒否されました、禁止された送信 IP。"
+fix  = "送信 IP が Microsoft の blocklist にあります。"
+
+[diagnostics.smtp.esc.5_7_708]
+what = "サービスが拒否されました。送信元 IP の評判が悪いです。"
+fix  = "別の IP から送信するか、delisting をリクエストしてください。"
+
+[diagnostics.smtp.esc.5_7_750]
+what = "未登録ドメインからの送信のためクライアントがブロックされました。"
+fix  = "テナントで送信者ドメインを確認するか、許可されたドメインを使用してください。"
+
+[diagnostics.smtp.esc.5_1_0]
+what = "送信者アドレスが拒否されました。"
+fix  = "From/MAIL FROM が受け入れられません;通常は形式またはドメインポリシーの問題。"
+
+[diagnostics.smtp.esc.5_1_1]
+what = "宛先メールボックスが不正 - 受信者が存在しません。"
+fix  = "受信者のアドレスを確認してください。"
+
+[diagnostics.smtp.esc.5_1_7]
+what = "無効な送信者アドレス (形式不正)。"
+fix  = "MAIL FROM の構文を修正してください。"
+
+[diagnostics.smtp.esc.5_1_8]
+what = "送信者ドメインが許可されていません。"
+fix  = "サーバーがドメインを受け入れていません。"
+
+[diagnostics.smtp.esc.5_1_10]
+what = "受信者アドレスが拒否されました - ユーザーが不明。"
+fix  = "タイプミスまたは存在しない受信者。"
+
+[diagnostics.smtp.esc.5_4_1]
+what = "受信者アドレスが拒否されました: アクセスが拒否されました。"
+fix  = "受信者のメールボックスはこの送信者 / ドメインからのメッセージを拒否しています。"
+
+[diagnostics.smtp.esc.5_2_1]
+what = "メールボックスが無効化されています、メッセージを受け入れません。"
+fix  = "受信者のメールボックスが停止されています。"
+
+[diagnostics.smtp.esc.5_2_2]
+what = "メールボックスが満杯です。"
+fix  = "受信者の容量を超えています。"
+
+[diagnostics.smtp.esc.5_3_4]
+what = "メッセージがシステムには大きすぎます。"
+fix  = "メッセージのサイズを小さくしてください。"
+
+[diagnostics.smtp.esc.4_7_0]
+what = "一時的な認証失敗 / throttling。"
+fix  = "後で再試行してください;繰り返しの不正なログインに対する tarpit の可能性もあります。"
+
+[diagnostics.smtp.esc.4_4_2]
+what = "接続が切断されました。"
+fix  = "ネットワークの問題またはサーバーの再起動;再試行してください。"
+
+[diagnostics.smtp.esc.4_3_2]
+what = "システムがネットワークメッセージを受け入れていません。"
+fix  = "サーバーメンテナンス。"
+
+[diagnostics.imap.AUTHENTICATIONFAILED]
+hint = "IMAP ログインが拒否されました - パスワードが間違っている、MFA が app-password なし、または Basic Auth が無効化されています。"
+
+[diagnostics.imap."LOGIN_failed"]
+hint = "IMAP ログインがサーバーによって拒否されました。"
+
+[diagnostics.imap.ALERT]
+hint = "サーバーが ALERT 応答を返しました - 読んでください;管理者が定義したメッセージです。"
+
+[diagnostics.imap.UNAVAILABLE]
+hint = "メールボックス/サーバーは一時的に利用できません。"
+
+[diagnostics.imap.PRIVACYREQUIRED]
+hint = "サーバーは LOGIN の前に TLS を必要とします - STARTTLS または暗黙の SSL を使用してください。"
+
+[diagnostics.imap.CLIENTBUG]
+hint = "クライアントがサーバーが間違っていると見なすことを実行しました;通常は STARTTLS の欠落または不正な状態です。"
+
+[diagnostics.imap.LOGINDISABLED]
+hint = "このサーバーでは Plain LOGIN が無効化されています - STARTTLS/SSL または XOAUTH2 を使用してください。"
+
+[diagnostics.pop.authentication_failed]
+hint = "POP3 ログインが拒否されました - 資格情報が間違っているか、このメールボックスで POP が無効化されています。"
+
+[diagnostics.pop.logon_failure]
+hint = "POP3 ログインが拒否されました。"
+
+[diagnostics.pop.not_implemented]
+hint = "サーバーが発行されたコマンドをサポートしていません。"
+
+[diagnostics.pop.disabled]
+hint = "このアカウント / テナントでは POP3 アクセスが無効化されています。"
+
+[diagnostics.bounce.gmail_send_as_en]
+needle = "Send mail as"
+hint = "Gmail の 'Send mail as' 上流ログインが失敗しました。設定 > すべての設定を表示 > アカウントとインポート > 名前を指定してメールを送信 > 情報を編集 > SMTP パスワードを再入力してください (ソースアカウントが 2FA を使用している場合は app-password)。"
+
+[diagnostics.bounce.gmail_send_as_nl]
+needle = "Mail sturen als"
+hint = "Gmail の 'Mail sturen als' (Send mail as) 上流ログインが失敗しました。設定 > すべての設定を表示 > アカウントとインポート > 名前を指定してメールを送信 > 情報を編集 > SMTP パスワードを再入力してください (ソースアカウントが 2FA を使用している場合は app-password)。"
+
+[cli.prompt]
+username = "ユーザー名 / メール: "
+password = "パスワード: "

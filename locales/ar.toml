@@ -1,0 +1,277 @@
+# smtp-test-tool locale: العربية (ar)
+# status: machine-translated, native review welcome.
+# Note: egui 0.34 has partial bidi support; Arabic text shape is
+# correct but layout may not perfectly match RTL conventions yet.
+
+[app]
+name = "SMTP Test Tool"
+
+[locale]
+native_name = "العربية"
+english_name = "Arabic"
+status_note = "ترجمة آلية - مراجعة من ناطق أصلي مرحب بها."
+
+[ui.window]
+title = "أداة اختبار SMTP"
+
+[ui.topbar]
+profile_label = "الملف الشخصي:"
+save_config = "حفظ الإعدادات"
+save_config_tooltip = "يكتب الملف الشخصي النشط مرة أخرى إلى ملف الإعدادات بجوار الملف القابل للتنفيذ."
+provider_preset = "إعداد مسبق لمزود الخدمة..."
+provider_preset_tooltip = "يطبق أحد الإعدادات المسبقة المختارة لمزودي الخدمة على حقول المضيف / المنفذ / الأمان أدناه."
+config_path_none = "لا يوجد ملف إعدادات"
+
+[ui.tab]
+servers = "الخوادم"
+send_mail = "إرسال بريد"
+tls_auth = "TLS / Auth"
+advanced = "متقدم"
+diagnose = "تحليل الرفض"
+
+[ui.servers]
+username = "اسم المستخدم:"
+password = "كلمة المرور:"
+show = "عرض"
+oauth_token = "رمز OAuth:"
+oauth_hint = "(XOAUTH2، اختياري)"
+save_to_keychain = "حفظ كلمة المرور في سلسلة المفاتيح"
+save_to_keychain_tooltip = "يحفظ كلمة المرور في سلسلة مفاتيح نظام التشغيل (Windows Credential Manager / macOS Keychain / Linux Secret Service). لا يتم كتابتها أبدًا في ملف الإعدادات."
+forget_keychain = "نسيان إدخال سلسلة المفاتيح"
+forget_keychain_tooltip = "يحذف إدخال smtp-test-tool لهذا المستخدم من سلسلة مفاتيح النظام. كما يتم مسح حقل كلمة المرور أعلاه."
+loaded_from_keychain = "(تم التحميل من سلسلة المفاتيح)"
+
+[ui.proto]
+test_smtp = "اختبار SMTP"
+test_imap = "اختبار IMAP"
+test_pop3 = "اختبار POP3"
+host = "المضيف:"
+port = "المنفذ:"
+security = "الأمان:"
+security_none = "بدون"
+security_starttls = "starttls"
+security_ssl = "ssl"
+
+[ui.send]
+toggle = "إرسال بريد اختبار فعليًا (وإلا يتم اختبار AUTH فقط)"
+mail_from = "MAIL FROM (المظروف):"
+from_header = "From: (الترويسة):"
+to = "إلى (مفصولة بفواصل):"
+cc = "نسخة (مفصولة بفواصل):"
+bcc = "نسخة مخفية (مفصولة بفواصل):"
+reply_to = "رد إلى:"
+subject = "الموضوع:"
+body = "المحتوى:"
+
+[ui.tls]
+auth_mech = "آلية SMTP AUTH:"
+insecure = "تعطيل التحقق من الشهادة (غير آمن - للاختبار فقط)"
+ca_bundle = "حزمة CA (PEM):"
+
+[ui.advanced]
+timeout = "المهلة (ثانية):"
+ehlo = "اسم EHLO/HELO:"
+imap_folder = "مجلد IMAP:"
+log_level = "مستوى السجل:"
+theme = "السمة:"
+language = "اللغة:"
+language_unsupported = "لغة نظام التشغيل ({code}) لم تتم ترجمتها بعد. تظهر النصوص بالإنجليزية; المساهمات مرحب بها."
+theme_follow_os = "اتباع النظام ({hint})"
+theme_dark = "داكن"
+theme_light = "فاتح"
+
+[ui.actions]
+run_test = "تشغيل الاختبار"
+running = "قيد التشغيل..."
+clear_log = "مسح السجل"
+
+[ui.status]
+smtp_idle = "SMTP: -"
+imap_idle = "IMAP: -"
+pop3_idle = "POP3: -"
+smtp_pass = "SMTP: نجح"
+imap_pass = "IMAP: نجح"
+pop3_pass = "POP3: نجح"
+smtp_fail = "SMTP: فشل"
+imap_fail = "IMAP: فشل"
+pop3_fail = "POP3: فشل"
+smtp_skip = "SMTP: تم تخطي"
+imap_skip = "IMAP: تم تخطي"
+pop3_skip = "POP3: تم تخطي"
+
+[ui.diagnose]
+intro = "الصق أدناه نص رسالة فشل التسليم لاستخراج تلميحات قابلة للتنفيذ من قبل تكنولوجيا المعلومات. يتعرف على SMTP enhanced status codes (5.7.139، 5.7.60)، عبارات Microsoft 365 (\"basic authentication is disabled\") وحالات الرفض من جانب البريد الإلكتروني عبر الويب مثل \"Send mail as / Mail sturen als\" من Gmail. لا يتم إرسال أي شيء عبر الشبكة ولا يتم حفظ النص على القرص."
+input_placeholder = "ألصق نص الرفض هنا..."
+analyse = "تحليل"
+clear = "مسح"
+hints_heading = "التلميحات"
+no_hints_yet = "(لا توجد تلميحات بعد - الصق رفضًا أعلاه وانقر على تحليل)"
+
+[ui.log]
+heading = "السجل"
+
+[diagnostics.scaffold]
+esc_prefix = "ESC {code}: {what}"
+action_prefix = "  -> الإجراء: {fix}"
+hint_prefix = "  -> {hint}"
+
+[diagnostics.smtp.esc.5_7_0]
+what = "المصادقة مطلوبة، أو آلية AUTH المختارة غير مسموح بها."
+fix  = "فعّل SMTP AUTH لصندوق البريد; تحقق من أن LOGIN / PLAIN / XOAUTH2 مسموح به."
+
+[diagnostics.smtp.esc.5_7_1]
+what = "تم رفض وصول Relay - الخادم يرفض إعادة توجيه هذه الرسالة."
+fix  = "إما أن المرسل غير مصادق، أو المستلم خارجي و relay معطل، أو transport rule تحظر الرسالة."
+
+[diagnostics.smtp.esc.5_7_3]
+what = "المصادقة فاشلة."
+fix  = "كلمة مرور خاطئة، MFA مفعّل بدون app-password، أو Basic/Legacy auth معطل على tenant (O365: 'SMTP AUTH disabled')."
+
+[diagnostics.smtp.esc.5_7_8]
+what = "بيانات اعتماد المصادقة غير صالحة."
+fix  = "تم رفض اسم المستخدم/كلمة المرور بواسطة طبقة SASL."
+
+[diagnostics.smtp.esc.5_7_57]
+what = "العميل لم يتم مصادقته لإرسال بريد مجهول الهوية أثناء MAIL FROM."
+fix  = "اجبر STARTTLS + AUTH قبل MAIL FROM. في O365، هذا هو الخطأ النموذجي عندما يتصل العميل بدون AUTH."
+
+[diagnostics.smtp.esc.5_7_60]
+what = "SendAsDenied - المستخدم المصادق غير مسموح له بالإرسال باسم عنوان From هذا."
+fix  = "امنح صندوق البريد حقوق 'Send As' (أو 'Send on Behalf') للحساب المصادق، أو غير ترويسة From لتطابق تسجيل الدخول."
+
+[diagnostics.smtp.esc.5_7_64]
+what = "TenantAttribution; Relay Access Denied."
+fix  = "يتطلب تقديم SMTP المصادق صندوق بريد مرخص في O365."
+
+[diagnostics.smtp.esc.5_7_124]
+what = "المستخدم غير مصرح له بإرسال البريد."
+fix  = "صندوق بريد معطل، محظور بواسطة Conditional Access، أو ترخيص مفقود."
+
+[diagnostics.smtp.esc.5_7_135]
+what = "المصادقة فاشلة، انتهت صلاحية بيانات اعتماد المستخدم."
+fix  = "أعد تعيين كلمة المرور / حدّث رمز OAuth."
+
+[diagnostics.smtp.esc.5_7_139]
+what = "المصادقة فاشلة; لم يستوف الطلب المعايير."
+fix  = "رفضت سياسة Conditional Access تسجيل الدخول (الموقع، الجهاز، MFA)."
+
+[diagnostics.smtp.esc.5_7_500]
+what = "تم رفض الوصول، نطاق الإرسال معطل."
+fix  = "نطاق المرسل محظور للبريد الصادر على هذا tenant."
+
+[diagnostics.smtp.esc.5_7_501]
+what = "تم رفض الوصول، مرسل محظور."
+fix  = "عنوان المرسل في blocklist tenant."
+
+[diagnostics.smtp.esc.5_7_508]
+what = "تم رفض الوصول، تم تجاوز عتبة المعدل أو حركة المرور."
+fix  = "Throttled; انتظر وأعد المحاولة، أو اطلب من المسؤول رفع الحد."
+
+[diagnostics.smtp.esc.5_7_511]
+what = "تم رفض الوصول، مرسل محظور."
+fix  = "تم تمييز المرسل كمصدر بريد عشوائي."
+
+[diagnostics.smtp.esc.5_7_606]
+what = "تم رفض الوصول، IP الإرسال محظور."
+fix  = "IP الإرسال في blocklist Microsoft."
+
+[diagnostics.smtp.esc.5_7_708]
+what = "تم رفض الخدمة. IP المصدر لديه سمعة سيئة."
+fix  = "أرسل من IP آخر أو اطلب delisting."
+
+[diagnostics.smtp.esc.5_7_750]
+what = "تم حظر العميل من الإرسال من نطاقات غير مسجلة."
+fix  = "تحقق من نطاق المرسل في tenant أو استخدم نطاقًا مقبولًا."
+
+[diagnostics.smtp.esc.5_1_0]
+what = "تم رفض عنوان المرسل."
+fix  = "From/MAIL FROM غير مقبول; عادةً تنسيق أو سياسة نطاق."
+
+[diagnostics.smtp.esc.5_1_1]
+what = "صندوق بريد وجهة خاطئ - المستلم غير موجود."
+fix  = "تحقق من عنوان المستلم."
+
+[diagnostics.smtp.esc.5_1_7]
+what = "عنوان مرسل غير صالح (مشوه)."
+fix  = "صحح صيغة MAIL FROM."
+
+[diagnostics.smtp.esc.5_1_8]
+what = "نطاق المرسل غير مسموح به."
+fix  = "الخادم لا يقبل النطاق."
+
+[diagnostics.smtp.esc.5_1_10]
+what = "تم رفض عنوان المستلم - المستخدم غير معروف."
+fix  = "خطأ إملائي أو مستلم غير موجود."
+
+[diagnostics.smtp.esc.5_4_1]
+what = "تم رفض عنوان المستلم: تم رفض الوصول."
+fix  = "صندوق بريد المستلم يرفض الرسائل من هذا المرسل / النطاق."
+
+[diagnostics.smtp.esc.5_2_1]
+what = "صندوق البريد معطل، لا يقبل الرسائل."
+fix  = "تم تعليق صندوق بريد المستلم."
+
+[diagnostics.smtp.esc.5_2_2]
+what = "صندوق البريد ممتلئ."
+fix  = "تم تجاوز حصة المستلم."
+
+[diagnostics.smtp.esc.5_3_4]
+what = "الرسالة كبيرة جدًا للنظام."
+fix  = "قلل حجم الرسالة."
+
+[diagnostics.smtp.esc.4_7_0]
+what = "فشل مصادقة مؤقت / throttling."
+fix  = "أعد المحاولة لاحقًا; قد يكون أيضًا tarpit لعمليات تسجيل دخول خاطئة متكررة."
+
+[diagnostics.smtp.esc.4_4_2]
+what = "تم قطع الاتصال."
+fix  = "خلل في الشبكة أو إعادة تشغيل الخادم; أعد المحاولة."
+
+[diagnostics.smtp.esc.4_3_2]
+what = "النظام لا يقبل رسائل الشبكة."
+fix  = "صيانة الخادم."
+
+[diagnostics.imap.AUTHENTICATIONFAILED]
+hint = "تم رفض تسجيل دخول IMAP - كلمة مرور خاطئة، MFA بدون app-password، أو Basic Auth معطل."
+
+[diagnostics.imap."LOGIN_failed"]
+hint = "تم رفض تسجيل دخول IMAP بواسطة الخادم."
+
+[diagnostics.imap.ALERT]
+hint = "عاد الخادم برد ALERT - اقرأه; رسالة محددة من قبل المسؤول."
+
+[diagnostics.imap.UNAVAILABLE]
+hint = "صندوق البريد/الخادم غير متاح مؤقتًا."
+
+[diagnostics.imap.PRIVACYREQUIRED]
+hint = "يتطلب الخادم TLS قبل LOGIN - استخدم STARTTLS أو SSL ضمنيًا."
+
+[diagnostics.imap.CLIENTBUG]
+hint = "فعل العميل شيئًا يعتبره الخادم خاطئًا; عادةً STARTTLS مفقود أو حالة خاطئة."
+
+[diagnostics.imap.LOGINDISABLED]
+hint = "Plain LOGIN معطل على هذا الخادم - استخدم STARTTLS/SSL أو XOAUTH2."
+
+[diagnostics.pop.authentication_failed]
+hint = "تم رفض تسجيل دخول POP3 - بيانات اعتماد خاطئة أو POP معطل لصندوق البريد هذا."
+
+[diagnostics.pop.logon_failure]
+hint = "تم رفض تسجيل دخول POP3."
+
+[diagnostics.pop.not_implemented]
+hint = "الخادم لا يدعم الأمر الصادر."
+
+[diagnostics.pop.disabled]
+hint = "وصول POP3 معطل لهذا الحساب / tenant."
+
+[diagnostics.bounce.gmail_send_as_en]
+needle = "Send mail as"
+hint = "فشل تسجيل الدخول الأولي 'Send mail as' في Gmail. الإعدادات > عرض جميع الإعدادات > الحسابات والاستيراد > إرسال البريد باسم > تحرير المعلومات > أعد إدخال كلمة مرور SMTP (أو app-password إذا كان الحساب المصدر يحتوي على 2FA)."
+
+[diagnostics.bounce.gmail_send_as_nl]
+needle = "Mail sturen als"
+hint = "فشل تسجيل الدخول الأولي 'Mail sturen als' (Send mail as) في Gmail. الإعدادات > عرض جميع الإعدادات > الحسابات والاستيراد > إرسال البريد باسم > تحرير المعلومات > أعد إدخال كلمة مرور SMTP (أو app-password إذا كان الحساب المصدر يحتوي على 2FA)."
+
+[cli.prompt]
+username = "اسم المستخدم / البريد الإلكتروني: "
+password = "كلمة المرور: "

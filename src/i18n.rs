@@ -70,11 +70,18 @@ const SV_TOML: &str = include_str!("../locales/sv.toml");
 const TR_TOML: &str = include_str!("../locales/tr.toml");
 const UK_TOML: &str = include_str!("../locales/uk.toml");
 const VI_TOML: &str = include_str!("../locales/vi.toml");
+// Non-Latin scripts - render correctly only when src/fonts.rs picks up an
+// OS-installed font for the script.  See CHANGELOG for the font story.
+const AR_TOML: &str = include_str!("../locales/ar.toml");
+const JA_TOML: &str = include_str!("../locales/ja.toml");
+const KO_TOML: &str = include_str!("../locales/ko.toml");
+const ZH_TOML: &str = include_str!("../locales/zh.toml");
 
 /// Codes of every shipped locale.  Order = alphabetical except `en` first
 /// (it is the base / fallback target).  Wired by [`available_locales`].
 const LOCALES: &[(&str, &str)] = &[
     ("en", EN_TOML),
+    ("ar", AR_TOML),
     ("bg", BG_TOML),
     ("cs", CS_TOML),
     ("da", DA_TOML),
@@ -87,6 +94,8 @@ const LOCALES: &[(&str, &str)] = &[
     ("hu", HU_TOML),
     ("id", ID_TOML),
     ("it", IT_TOML),
+    ("ja", JA_TOML),
+    ("ko", KO_TOML),
     ("nl", NL_TOML),
     ("no", NO_TOML),
     ("pl", PL_TOML),
@@ -99,6 +108,7 @@ const LOCALES: &[(&str, &str)] = &[
     ("tr", TR_TOML),
     ("uk", UK_TOML),
     ("vi", VI_TOML),
+    ("zh", ZH_TOML),
 ];
 
 // ---- runtime tables ------------------------------------------------------

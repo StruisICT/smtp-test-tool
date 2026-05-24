@@ -1,0 +1,275 @@
+# smtp-test-tool locale: 简体中文 (zh-CN)
+# status: machine-translated, native review welcome.
+
+[app]
+name = "SMTP Test Tool"
+
+[locale]
+native_name = "简体中文"
+english_name = "Chinese (Simplified)"
+status_note = "机器翻译 - 欢迎母语者审阅。"
+
+[ui.window]
+title = "SMTP 测试工具"
+
+[ui.topbar]
+profile_label = "配置:"
+save_config = "保存配置"
+save_config_tooltip = "将当前配置写回可执行文件旁边的配置文件。"
+provider_preset = "提供商预设..."
+provider_preset_tooltip = "将一个精选的邮件提供商预设应用于下方的主机 / 端口 / 安全字段。"
+config_path_none = "没有配置文件"
+
+[ui.tab]
+servers = "服务器"
+send_mail = "发送邮件"
+tls_auth = "TLS / Auth"
+advanced = "高级"
+diagnose = "分析退信"
+
+[ui.servers]
+username = "用户名:"
+password = "密码:"
+show = "显示"
+oauth_token = "OAuth 令牌:"
+oauth_hint = "(XOAUTH2, 可选)"
+save_to_keychain = "将密码保存到钥匙串"
+save_to_keychain_tooltip = "将密码保存在操作系统的钥匙串中 (Windows Credential Manager / macOS Keychain / Linux Secret Service)。永远不会写入配置文件。"
+forget_keychain = "忘记钥匙串条目"
+forget_keychain_tooltip = "从操作系统钥匙串中删除此用户的 smtp-test-tool 条目。上方的密码字段也会被清空。"
+loaded_from_keychain = "(已从钥匙串加载)"
+
+[ui.proto]
+test_smtp = "测试 SMTP"
+test_imap = "测试 IMAP"
+test_pop3 = "测试 POP3"
+host = "主机:"
+port = "端口:"
+security = "安全:"
+security_none = "无"
+security_starttls = "starttls"
+security_ssl = "ssl"
+
+[ui.send]
+toggle = "实际发送测试邮件 (否则仅测试 AUTH)"
+mail_from = "MAIL FROM (信封):"
+from_header = "From: (标头):"
+to = "收件人 (用逗号分隔):"
+cc = "抄送 (用逗号分隔):"
+bcc = "密送 (用逗号分隔):"
+reply_to = "回复:"
+subject = "主题:"
+body = "内容:"
+
+[ui.tls]
+auth_mech = "SMTP AUTH 机制:"
+insecure = "禁用证书验证 (不安全 - 仅用于测试)"
+ca_bundle = "CA 包 (PEM):"
+
+[ui.advanced]
+timeout = "超时 (秒):"
+ehlo = "EHLO/HELO 名称:"
+imap_folder = "IMAP 文件夹:"
+log_level = "日志级别:"
+theme = "主题:"
+language = "语言:"
+language_unsupported = "您的操作系统区域设置 ({code}) 尚未翻译。文本以英文显示;欢迎贡献。"
+theme_follow_os = "跟随系统 ({hint})"
+theme_dark = "深色"
+theme_light = "浅色"
+
+[ui.actions]
+run_test = "运行测试"
+running = "运行中..."
+clear_log = "清除日志"
+
+[ui.status]
+smtp_idle = "SMTP: -"
+imap_idle = "IMAP: -"
+pop3_idle = "POP3: -"
+smtp_pass = "SMTP: 通过"
+imap_pass = "IMAP: 通过"
+pop3_pass = "POP3: 通过"
+smtp_fail = "SMTP: 失败"
+imap_fail = "IMAP: 失败"
+pop3_fail = "POP3: 失败"
+smtp_skip = "SMTP: 跳过"
+imap_skip = "IMAP: 跳过"
+pop3_skip = "POP3: 跳过"
+
+[ui.diagnose]
+intro = "在下方粘贴投递失败邮件的正文,以提取 IT 可执行的提示。识别 SMTP enhanced status codes (5.7.139、5.7.60)、Microsoft 365 短语 (\"basic authentication is disabled\") 以及 Gmail 的 \"Send mail as / Mail sturen als\" 等网页邮件端退信。不会通过网络发送任何内容,文本也不会保存到磁盘。"
+input_placeholder = "在此粘贴退信正文..."
+analyse = "分析"
+clear = "清除"
+hints_heading = "提示"
+no_hints_yet = "(尚无提示 - 在上方粘贴退信并点击分析)"
+
+[ui.log]
+heading = "日志"
+
+[diagnostics.scaffold]
+esc_prefix = "ESC {code}: {what}"
+action_prefix = "  -> 操作: {fix}"
+hint_prefix = "  -> {hint}"
+
+[diagnostics.smtp.esc.5_7_0]
+what = "需要身份验证,或者所选 AUTH 机制不被允许。"
+fix  = "为邮箱启用 SMTP AUTH;验证 LOGIN / PLAIN / XOAUTH2 是否被允许。"
+
+[diagnostics.smtp.esc.5_7_1]
+what = "Relay 访问被拒绝 - 服务器拒绝转发此邮件。"
+fix  = "要么发件人未通过身份验证,收件人是外部的且 relay 被禁用,要么 transport rule 阻止了邮件。"
+
+[diagnostics.smtp.esc.5_7_3]
+what = "身份验证不成功。"
+fix  = "密码错误,启用了 MFA 但没有 app-password,或者租户上禁用了 Basic/Legacy auth (O365: 'SMTP AUTH disabled')。"
+
+[diagnostics.smtp.esc.5_7_8]
+what = "身份验证凭据无效。"
+fix  = "用户名/密码被 SASL 层拒绝。"
+
+[diagnostics.smtp.esc.5_7_57]
+what = "客户端在 MAIL FROM 期间未通过身份验证,无法发送匿名邮件。"
+fix  = "在 MAIL FROM 之前强制执行 STARTTLS + AUTH。在 O365 中,这是客户端未经 AUTH 连接时的典型错误。"
+
+[diagnostics.smtp.esc.5_7_60]
+what = "SendAsDenied - 已验证用户不被允许以此 From 地址发送。"
+fix  = "为已验证账户授予邮箱 'Send As' (或 'Send on Behalf') 权限,或更改 From 标头以匹配登录。"
+
+[diagnostics.smtp.esc.5_7_64]
+what = "TenantAttribution; Relay Access Denied。"
+fix  = "已验证的 SMTP 提交在 O365 中需要已授权的邮箱。"
+
+[diagnostics.smtp.esc.5_7_124]
+what = "用户无权发送邮件。"
+fix  = "邮箱已禁用、被 Conditional Access 阻止或缺少许可证。"
+
+[diagnostics.smtp.esc.5_7_135]
+what = "身份验证不成功,用户凭据已过期。"
+fix  = "重置密码 / 刷新 OAuth 令牌。"
+
+[diagnostics.smtp.esc.5_7_139]
+what = "身份验证不成功;请求不符合条件。"
+fix  = "Conditional Access 策略拒绝了登录 (位置、设备、MFA)。"
+
+[diagnostics.smtp.esc.5_7_500]
+what = "访问被拒绝,发送域已禁用。"
+fix  = "发件人的域名在此租户上被阻止发送外发邮件。"
+
+[diagnostics.smtp.esc.5_7_501]
+what = "访问被拒绝,被禁止的发件人。"
+fix  = "发件人地址在租户的 blocklist 中。"
+
+[diagnostics.smtp.esc.5_7_508]
+what = "访问被拒绝,超过速率或流量阈值。"
+fix  = "Throttled;等待并重试,或请求管理员提高限制。"
+
+[diagnostics.smtp.esc.5_7_511]
+what = "访问被拒绝,被禁止的发件人。"
+fix  = "发件人被标记为垃圾邮件来源。"
+
+[diagnostics.smtp.esc.5_7_606]
+what = "访问被拒绝,被禁止的发送 IP。"
+fix  = "发送 IP 在 Microsoft 的 blocklist 中。"
+
+[diagnostics.smtp.esc.5_7_708]
+what = "服务被拒绝。源 IP 信誉不佳。"
+fix  = "从其他 IP 发送或请求 delisting。"
+
+[diagnostics.smtp.esc.5_7_750]
+what = "客户端被禁止从未注册的域发送。"
+fix  = "在租户中验证发件人域名或使用已接受的域名。"
+
+[diagnostics.smtp.esc.5_1_0]
+what = "发件人地址被拒绝。"
+fix  = "From/MAIL FROM 未被接受;通常是格式或域名策略问题。"
+
+[diagnostics.smtp.esc.5_1_1]
+what = "错误的目标邮箱 - 收件人不存在。"
+fix  = "检查收件人地址。"
+
+[diagnostics.smtp.esc.5_1_7]
+what = "无效的发件人地址 (格式错误)。"
+fix  = "修复 MAIL FROM 语法。"
+
+[diagnostics.smtp.esc.5_1_8]
+what = "发件人域名不被允许。"
+fix  = "服务器不接受该域名。"
+
+[diagnostics.smtp.esc.5_1_10]
+what = "收件人地址被拒绝 - 用户未知。"
+fix  = "拼写错误或不存在的收件人。"
+
+[diagnostics.smtp.esc.5_4_1]
+what = "收件人地址被拒绝: 访问被拒绝。"
+fix  = "收件人邮箱拒绝来自此发件人 / 域名的邮件。"
+
+[diagnostics.smtp.esc.5_2_1]
+what = "邮箱已禁用,不接受邮件。"
+fix  = "收件人邮箱被暂停。"
+
+[diagnostics.smtp.esc.5_2_2]
+what = "邮箱已满。"
+fix  = "收件人配额已超出。"
+
+[diagnostics.smtp.esc.5_3_4]
+what = "邮件对系统来说太大。"
+fix  = "减小邮件大小。"
+
+[diagnostics.smtp.esc.4_7_0]
+what = "临时身份验证失败 / throttling。"
+fix  = "稍后重试;也可能是因重复错误登录而产生的 tarpit。"
+
+[diagnostics.smtp.esc.4_4_2]
+what = "连接中断。"
+fix  = "网络故障或服务器重启;重试。"
+
+[diagnostics.smtp.esc.4_3_2]
+what = "系统不接受网络邮件。"
+fix  = "服务器维护。"
+
+[diagnostics.imap.AUTHENTICATIONFAILED]
+hint = "IMAP 登录被拒绝 - 密码错误,MFA 没有 app-password,或者 Basic Auth 被禁用。"
+
+[diagnostics.imap."LOGIN_failed"]
+hint = "IMAP 登录被服务器拒绝。"
+
+[diagnostics.imap.ALERT]
+hint = "服务器返回了 ALERT 响应 - 请阅读;管理员定义的消息。"
+
+[diagnostics.imap.UNAVAILABLE]
+hint = "邮箱/服务器暂时不可用。"
+
+[diagnostics.imap.PRIVACYREQUIRED]
+hint = "服务器要求在 LOGIN 之前使用 TLS - 使用 STARTTLS 或隐式 SSL。"
+
+[diagnostics.imap.CLIENTBUG]
+hint = "客户端做了服务器认为错误的事情;通常缺少 STARTTLS 或状态错误。"
+
+[diagnostics.imap.LOGINDISABLED]
+hint = "在此服务器上禁用了 Plain LOGIN - 使用 STARTTLS/SSL 或 XOAUTH2。"
+
+[diagnostics.pop.authentication_failed]
+hint = "POP3 登录被拒绝 - 凭据错误或此邮箱禁用了 POP。"
+
+[diagnostics.pop.logon_failure]
+hint = "POP3 登录被拒绝。"
+
+[diagnostics.pop.not_implemented]
+hint = "服务器不支持发出的命令。"
+
+[diagnostics.pop.disabled]
+hint = "此账户 / 租户禁用了 POP3 访问。"
+
+[diagnostics.bounce.gmail_send_as_en]
+needle = "Send mail as"
+hint = "Gmail 的 'Send mail as' 上游登录失败。设置 > 查看所有设置 > 帐户和导入 > 用以下地址发送邮件 > 修改信息 > 重新输入 SMTP 密码 (如果源账户启用了 2FA 则使用 app-password)。"
+
+[diagnostics.bounce.gmail_send_as_nl]
+needle = "Mail sturen als"
+hint = "Gmail 的 'Mail sturen als' (Send mail as) 上游登录失败。设置 > 查看所有设置 > 帐户和导入 > 用以下地址发送邮件 > 修改信息 > 重新输入 SMTP 密码 (如果源账户启用了 2FA 则使用 app-password)。"
+
+[cli.prompt]
+username = "用户名 / 电子邮件: "
+password = "密码: "
