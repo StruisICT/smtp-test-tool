@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-05-25
+
+### Added
+- **5 more non-Latin locales**, bringing the total to **34 shipped
+  languages** with **9 distinct non-Latin scripts**:
+    * `hi` Hindi (Devanagari) - ~600M speakers
+    * `bn` Bengali - ~270M speakers
+    * `fa` Persian / Farsi (Arabic script with extensions) - ~110M
+    * `th` Thai - ~70M speakers
+    * `he` Hebrew - ~9M speakers
+  Each is machine-translated with a `locale.status_note` in its own
+  language flagging it as such and welcoming native review.  All five
+  render correctly on the bundled GUI thanks to `src/fonts.rs`
+  discovering `Nirmala UI` (Indic), `Leelawadee UI` (Thai), and
+  `Segoe UI` (Hebrew + Persian) automatically on Windows; macOS and
+  Linux candidate lists already include their equivalents.
+- **Localised screenshot gallery in the README** (zh, ja, ko, ar, fa,
+  he, hi, bn, th) - visual proof that the OS-font-discovery story
+  actually works end-to-end.
+
+### Fixed
+- **`tools/screenshot.ps1` root cause finally found.**  Both
+  `PrintWindow(PW_RENDERFULLCONTENT)` and a *rect-restricted*
+  `CopyFromScreen` return blank surfaces for the eframe glow GL
+  window under Windows 11 DWM in certain DPI / monitor configs.  The
+  working approach is to snapshot the entire virtual screen and crop
+  to the window rect in software - DWM composites the GL surface into
+  the desktop bitmap and a full-screen `CopyFromScreen` reads it back
+  fine.  Script now does this on the fallback path automatically.
+- New `-Locale` parameter on `tools/screenshot.ps1` so future
+  contributors can regenerate any locale's screenshot with one
+  command.
+
 ## [0.1.4] - 2026-05-24
 
 ### Added
