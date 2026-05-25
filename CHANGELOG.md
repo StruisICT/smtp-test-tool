@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-05-25
+
+### Added
+- **2 more non-Latin locales**, bringing the total to **36 shipped
+  languages** with **11 distinct non-Latin scripts**:
+    * `ta` Tamil   (~75M speakers)
+    * `te` Telugu  (~95M speakers)
+  Both render correctly out of the box on Windows (Nirmala UI covers
+  all 10 Indic scripts), macOS, and Linux distros with the Noto
+  family installed.  Screenshots added to the README gallery.
+- **Package-manager manifests** in `packaging/` for the three free
+  Windows / macOS / Linux managers:
+    * **WinGet** — `Struis112.SmtpTestTool` (`winget install ...`)
+    * **Scoop**  — bucket at `Struis112/scoop-bucket`
+    * **Homebrew** — tap at `Struis112/homebrew-tap`
+  Each manifest is auto-refreshed on every release: a new
+  `refresh-manifests` job in `.github/workflows/release.yml` runs
+  after `release` + `publish`, pulls the SHA-256 sidecars from the
+  GitHub Release, rewrites the YAML / JSON / Ruby files, and commits
+  them back to `main` with a `[skip ci]` marker.  Mirroring the
+  manifests to the upstream registries is documented in
+  `packaging/README.md` and remains a manual one-liner per release
+  (cross-repo PATs were ruled out to keep the trust surface small).
+- README `## Install` section grows three new top entries that point
+  at the package managers; the prebuilt-binary fallback stays for
+  users who prefer a direct download.
+
+### Notes
+- Tamil and Telugu translations are machine-generated, like every
+  non-`en` / `nl` locale.  PRs from native speakers welcome - the
+  contribution flow is documented in `CONTRIBUTING.md`.
+
 ## [0.1.5] - 2026-05-25
 
 ### Added
