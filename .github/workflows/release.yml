@@ -217,7 +217,10 @@ jobs:
           MAC_X86:   ${{ steps.hashes.outputs.mac_x86 }}
         run: |
           set -euo pipefail
-          VER="${VERSION#v}"   # strip 'v' for non-tag contexts
+          # Export so the python heredocs further down inherit it via
+          # os.environ.  WIN_ZIP / MAC_* / LINUX_GNU come in via env:
+          # so they are already exported by the action runner.
+          export VER="${VERSION#v}"   # strip 'v' for non-tag contexts
           TODAY=$(date -u +%Y-%m-%d)
 
           # ---- WinGet (3 YAMLs) ------------------------------------
@@ -231,12 +234,17 @@ jobs:
           sed -i "s/^ReleaseDate: .*/ReleaseDate: $TODAY/"            packaging/winget/Struis112.SmtpTestTool.installer.yaml
 
           # ---- Scoop ----------------------------------------------
-          python3 - <<PY
+          # Quoted 'PY' heredoc so bash leaves backslashes alone.
+          python3 - <<'PY'
           import json, os
-          p = 'packaging/scoop/smtp-test-tool.json'
-          d = json.load(open(p))
-          d['version'] = os.environ['VER']
-          d['architecture']['64bit']['url']  = f"https://github.com/Struis112/smtp-test-tool/releases/download/v{os.environ['VER']}/smtp-test-tool-x86_64-pc-windows-msvc.zip"
+          ver  = os.environ['VER']
+          p    = 'packaging/scoop/smtp-test-tool.json'
+          d    = json.load(open(p))
+          d['version'] = ver
+          d['architecture']['64bit']['url']  = (
+              f"https://github.com/Struis112/smtp-test-tool/releases/download/v{ver}"
+              f"/smtp-test-tool-x86_64-pc-windows-msvc.zip"
+          )
           d['architecture']['64bit']['hash'] = os.environ['WIN_ZIP']
           json.dump(d, open(p, 'w'), indent=2)
           open(p, 'a').write('\n')
@@ -245,21 +253,36 @@ jobs:
           # ---- Homebrew -------------------------------------------
           F=packaging/homebrew/smtp-test-tool.rb
           sed -i "s/version \"[^\"]*\"/version \"$VER\"/" "$F"
-          # Replace each url + sha256 line based on context.
-          python3 - <<PY
+          # Two small, indent-preserving substitutions per target.
+          # We deliberately use \g<N> backref syntax to avoid the \\1
+          # -> \x01 trap that bash + python string-literal escaping
+          # falls into for plain \1 references in heredocs.
+          python3 - <<'PY'
           import re, os
           p = 'packaging/homebrew/smtp-test-tool.rb'
           src = open(p).read()
           ver = os.environ['VER']
           subs = [
-            ('aarch64-apple-darwin',          os.environ['MAC_ARM']),
-            ('x86_64-apple-darwin',           os.environ['MAC_X86']),
-            ('x86_64-unknown-linux-gnu',      os.environ['LINUX_GNU']),
+            ('aarch64-apple-darwin',     os.environ['MAC_ARM']),
+            ('x86_64-apple-darwin',      os.environ['MAC_X86']),
+            ('x86_64-unknown-linux-gnu', os.environ['LINUX_GNU']),
           ]
           for tgt, h in subs:
+            # 1) Bump the version inside the URL for this target.
             src = re.sub(
-              rf'url "https://github.com/Struis112/smtp-test-tool/releases/download/v[0-9.]+/smtp-test-tool-{tgt}\\.tar\\.gz"\\s*\\n(\\s*)sha256 "[0-9a-f]+"',
-              f'url "https://github.com/Struis112/smtp-test-tool/releases/download/v{ver}/smtp-test-tool-{tgt}.tar.gz"\\n\\1sha256 "{h}"',
+              r'(https://github\.com/Struis112/smtp-test-tool/releases/download/)v[0-9.]+(/smtp-test-tool-'
+              + re.escape(tgt) + r'\.tar\.gz)',
+              rf'\g<1>v{ver}\g<2>',
+              src,
+            )
+            # 2) Replace the sha256 hash that follows the matching
+            #    URL.  Indentation around `sha256` is outside the
+            #    capture so it is preserved verbatim.
+            src = re.sub(
+              r'(/v' + re.escape(ver) + r'/smtp-test-tool-'
+              + re.escape(tgt) + r'\.tar\.gz"\s*\n\s*sha256 ")'
+              r'[0-9a-f]+(")',
+              rf'\g<1>{h}\g<2>',
               src,
             )
           open(p, 'w').write(src)
