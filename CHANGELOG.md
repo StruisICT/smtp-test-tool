@@ -7,6 +7,70 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-05-26
+
+First MINOR bump - the public library API gains two new modules
+(`dns` and `oauth`), gated by their respective features.  Existing
+code continues to compile unchanged; nothing in the 0.1.x surface
+was removed or renamed.
+
+### Added
+- **DNS-side checks** (`src/dns.rs`, feature `dns`).  MX / SPF /
+  DMARC lookups via `hickory-resolver 0.26` running under a small
+  on-demand `tokio` current-thread runtime.  The synchronous
+  entry point `dns::audit_domain(domain)` returns a `DnsReport`
+  and `dns::interpret(&report)` produces a flat list of
+  IT-actionable hints sorted by severity (`Critical` / `Warning`
+  / `Info`).  Catches the ~90% of mail-flow failures that are
+  actually DNS misconfiguration: missing MX, MX without A record,
+  `+all` / no-all SPF, missing DMARC, `p=none` DMARC.  12 new
+  unit tests plus a network-gated live test against `outlook.com`.
+  CLI: new `smtp-test-tool dns <domain>` subcommand with optional
+  `--json` output and a non-zero exit code when any Critical hint
+  fires (useful for shell-script alerting).  GUI: new **DNS check**
+  tab alongside Diagnose-bounce, with a background-thread audit so
+  the UI stays responsive.
+- **OAuth2 device-code flow for Microsoft 365** (`src/oauth.rs`,
+  feature `oauth`).  Implements RFC 8628 against
+  `login.microsoftonline.com/common/oauth2/v2.0`:
+  `oauth::m365_start()` returns a `DeviceCodeStart` with the
+  verification URL + user code, `oauth::m365_poll(start, cancel)`
+  blocks until the user authorises in their browser,
+  `oauth::m365_refresh(refresh_token)` mints a fresh access token
+  on demand.  Ships with the well-known Thunderbird public client
+  ID (`9e5f94bc-e8a4-4e73-b8be-63364c29d753`) so users do not need
+  their own Azure app registration for ad-hoc testing.  Tokens are
+  stored in the OS keychain under the `oauth-refresh:<user>` key,
+  never in the config file (AGENTS.md rule #8).
+  CLI: new `smtp-test-tool oauth-login --user EMAIL` subcommand;
+  subsequent runs with `--keychain-load` auto-refresh and use the
+  access token as XOAUTH2.
+  GUI: new **Sign in to Microsoft 365...** button on the Servers
+  tab opens the verification URL in the default browser via the
+  `webbrowser` crate, polls in a background thread, and pops the
+  resulting access token into the OAuth field on completion.
+- New `--features live-net` enables two opt-in integration tests
+  (`dns::tests::live_outlook_audit`, `oauth::tests::live_m365_start`)
+  that hit the network.  Off by default so plain `cargo test`
+  works offline.
+
+### Changed
+- `Cargo.toml` adds `hickory-resolver 0.26`, `tokio 1` (rt-only),
+  `ureq 3` (rustls), `serde_json 1`, `serde_urlencoded 0.7`, and
+  `webbrowser 1` - all tied to the new feature flags so
+  CLI-only / GUI-only / no-OAuth builds stay slim.
+- `thiserror 2` added as a top-level dep (used by both new
+  modules' error types; lighter weight than wrapping every error
+  in `anyhow`).
+
+### Notes
+- We deliberately did NOT ship Gmail OAuth in this release.  Google
+  Cloud requires every public client to be registered, verified,
+  and pinned to a specific tenant - none of those steps suit a
+  single-binary diagnostic tool.  Most users on personal Gmail
+  can still rely on app-passwords; Workspace users with hard
+  XOAUTH2 requirements can paste a token in the existing field.
+
 ## [0.1.6] - 2026-05-25
 
 ### Added
