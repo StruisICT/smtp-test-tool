@@ -5,9 +5,14 @@ PackageVersion: 0.2.0
 InstallerType: zip
 NestedInstallerType: portable
 NestedInstallerFiles:
-  - RelativeFilePath: smtp-test-tool.exe
+  # The release zip puts every file under a top-level folder named
+  # after the target triple - see release.yml's Package (Windows)
+  # step.  These RelativeFilePath values track that exact structure;
+  # if the archiver ever flattens the layout, update both this file
+  # and the corresponding entry in winget-pkgs.
+  - RelativeFilePath: smtp-test-tool-x86_64-pc-windows-msvc\smtp-test-tool.exe
     PortableCommandAlias: smtp-test-tool
-  - RelativeFilePath: smtp-test-tool-gui.exe
+  - RelativeFilePath: smtp-test-tool-x86_64-pc-windows-msvc\smtp-test-tool-gui.exe
     PortableCommandAlias: smtp-test-tool-gui
 Commands:
   - smtp-test-tool
