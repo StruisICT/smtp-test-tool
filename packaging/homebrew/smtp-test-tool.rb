@@ -2,18 +2,18 @@
 # Hand-edits will be overwritten on the next release.
 class SmtpTestTool < Formula
   desc "Cross-platform SMTP / IMAP / POP3 connectivity tester with IT-actionable diagnostics"
-  homepage "https://github.com/Struis112/smtp-test-tool"
+  homepage "https://github.com/StruisICT/smtp-test-tool"
   version "0.2.0"
   license any_of: ["MIT", "Apache-2.0"]
 
   if OS.mac? && Hardware::CPU.arm?
-    url "https://github.com/Struis112/smtp-test-tool/releases/download/v0.2.0/smtp-test-tool-aarch64-apple-darwin.tar.gz"
+    url "https://github.com/StruisICT/smtp-test-tool/releases/download/v0.2.0/smtp-test-tool-aarch64-apple-darwin.tar.gz"
     sha256 "9c028f54550c3039ddcc667473d74098674d3788b804e527105d2448718d3383"
   elsif OS.mac?
-    url "https://github.com/Struis112/smtp-test-tool/releases/download/v0.2.0/smtp-test-tool-x86_64-apple-darwin.tar.gz"
+    url "https://github.com/StruisICT/smtp-test-tool/releases/download/v0.2.0/smtp-test-tool-x86_64-apple-darwin.tar.gz"
     sha256 "3e70c7e39893463104e929947e02b31d0a9d034630af31831ea20f71ac211e27"
   elsif OS.linux?
-    url "https://github.com/Struis112/smtp-test-tool/releases/download/v0.2.0/smtp-test-tool-x86_64-unknown-linux-gnu.tar.gz"
+    url "https://github.com/StruisICT/smtp-test-tool/releases/download/v0.2.0/smtp-test-tool-x86_64-unknown-linux-gnu.tar.gz"
     sha256 "94601961044b41000f12506fcf1d9525fe8b73244e34fd4ab961e7199fe74cd1"
   end
 

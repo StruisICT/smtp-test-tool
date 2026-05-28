@@ -5,13 +5,13 @@ PackageIdentifier: StruisICT.SmtpTestTool
 PackageVersion: 0.2.0
 PackageLocale: en-US
 Publisher: StruisICT
-PublisherUrl: https://github.com/Struis112
-PublisherSupportUrl: https://github.com/Struis112/smtp-test-tool/issues
+PublisherUrl: https://github.com/StruisICT
+PublisherSupportUrl: https://github.com/StruisICT/smtp-test-tool/issues
 Author: StruisICT
 PackageName: SMTP Test Tool
-PackageUrl: https://github.com/Struis112/smtp-test-tool
+PackageUrl: https://github.com/StruisICT/smtp-test-tool
 License: MIT OR Apache-2.0
-LicenseUrl: https://github.com/Struis112/smtp-test-tool/blob/main/LICENSE-MIT
+LicenseUrl: https://github.com/StruisICT/smtp-test-tool/blob/main/LICENSE-MIT
 Copyright: Copyright (c) 2026 StruisICT
 ShortDescription: Cross-platform SMTP / IMAP / POP3 connectivity tester with IT-actionable diagnostics.
 Description: |-

@@ -22,7 +22,7 @@ Commands:
 ReleaseDate: 2026-05-25
 Installers:
   - Architecture: x64
-    InstallerUrl: https://github.com/Struis112/smtp-test-tool/releases/download/v0.2.0/smtp-test-tool-x86_64-pc-windows-msvc.zip
+    InstallerUrl: https://github.com/StruisICT/smtp-test-tool/releases/download/v0.2.0/smtp-test-tool-x86_64-pc-windows-msvc.zip
     InstallerSha256: bd73547c03578bec199f82f6cf1c2e1f162abe9f19b1fbc93d5d99bb1b7a5d52
 ManifestType: installer
 ManifestVersion: 1.10.0

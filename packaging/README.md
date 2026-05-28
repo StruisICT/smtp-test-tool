@@ -5,8 +5,8 @@ Static manifest templates for the three package managers we ship to:
 | Manager  | Platform | Manifest         | User command                                                 |
 |----------|----------|------------------|--------------------------------------------------------------|
 | WinGet   | Windows  | `winget/*.yaml`  | `winget install StruisICT.SmtpTestTool`                      |
-| Scoop    | Windows  | `scoop/*.json`   | `scoop bucket add struis112 https://github.com/Struis112/scoop-bucket && scoop install smtp-test-tool` |
-| Homebrew | mac/Linux| `homebrew/*.rb`  | `brew tap struis112/tap && brew install smtp-test-tool`      |
+| Scoop    | Windows  | `scoop/*.json`   | `scoop bucket add struisict https://github.com/StruisICT/scoop-bucket && scoop install smtp-test-tool` |
+| Homebrew | mac/Linux| `homebrew/*.rb`  | `brew tap struisict/tap && brew install smtp-test-tool`      |
 
 ## How they stay in sync
 
@@ -39,8 +39,7 @@ package is live within a few hours.
 
 (The path's first segment `s` is the lower-cased first letter of the
 Publisher portion of the PackageIdentifier - `StruisICT` starts with
-`S`, hence `manifests/s/`.  `Struis112` (the GitHub username that
-actually owns the binaries) is **not** the publisher; the publisher
+`S`, hence `manifests/s/`.  the previous user account `Struis112` is **not** the publisher; the publisher
 is the release brand `StruisICT`.)
 
 A `wingetcreate submit` one-liner is the recommended path; the
@@ -52,7 +51,7 @@ submits the PR manually after each release.
 ### Scoop
 
 Mirror `scoop/smtp-test-tool.json` to the
-[`Struis112/scoop-bucket`](https://github.com/Struis112/scoop-bucket)
+[`StruisICT/scoop-bucket`](https://github.com/StruisICT/scoop-bucket)
 repo, under `bucket/smtp-test-tool.json`.  Users add the bucket once
 and `scoop update smtp-test-tool` picks up new versions
 automatically.
@@ -60,7 +59,7 @@ automatically.
 ### Homebrew
 
 Mirror `homebrew/smtp-test-tool.rb` to
-[`Struis112/homebrew-tap`](https://github.com/Struis112/homebrew-tap)
+[`StruisICT/homebrew-tap`](https://github.com/StruisICT/homebrew-tap)
 under `Formula/smtp-test-tool.rb`.  Users add the tap once and
 `brew upgrade smtp-test-tool` picks up new versions automatically.
 

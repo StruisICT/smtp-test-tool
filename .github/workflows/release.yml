@@ -225,7 +225,7 @@ jobs:
 
           # ---- WinGet (3 YAMLs) ------------------------------------
           # NB: package identifier is 'StruisICT.SmtpTestTool' - the
-          # release brand, distinct from the GitHub username Struis112
+          # release brand, distinct from the maintainer's GitHub user account
           # that owns the upstream repository.
           for f in packaging/winget/StruisICT.SmtpTestTool.installer.yaml \
                    packaging/winget/StruisICT.SmtpTestTool.locale.en-US.yaml \
@@ -245,7 +245,7 @@ jobs:
           d    = json.load(open(p))
           d['version'] = ver
           d['architecture']['64bit']['url']  = (
-              f"https://github.com/Struis112/smtp-test-tool/releases/download/v{ver}"
+              f"https://github.com/StruisICT/smtp-test-tool/releases/download/v{ver}"
               f"/smtp-test-tool-x86_64-pc-windows-msvc.zip"
           )
           d['architecture']['64bit']['hash'] = os.environ['WIN_ZIP']
@@ -273,7 +273,7 @@ jobs:
           for tgt, h in subs:
             # 1) Bump the version inside the URL for this target.
             src = re.sub(
-              r'(https://github\.com/Struis112/smtp-test-tool/releases/download/)v[0-9.]+(/smtp-test-tool-'
+              r'(https://github\.com/StruisICT/smtp-test-tool/releases/download/)v[0-9.]+(/smtp-test-tool-'
               + re.escape(tgt) + r'\.tar\.gz)',
               rf'\g<1>v{ver}\g<2>',
               src,

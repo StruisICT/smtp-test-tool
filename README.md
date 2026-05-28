@@ -1,6 +1,6 @@
 # smtp-test-tool
 
-[![CI](https://github.com/Struis112/smtp-test-tool/actions/workflows/ci.yml/badge.svg)](https://github.com/Struis112/smtp-test-tool/actions/workflows/ci.yml)
+[![CI](https://github.com/StruisICT/smtp-test-tool/actions/workflows/ci.yml/badge.svg)](https://github.com/StruisICT/smtp-test-tool/actions/workflows/ci.yml)
 [![crates.io](https://img.shields.io/crates/v/smtp-test-tool.svg)](https://crates.io/crates/smtp-test-tool)
 [![docs.rs](https://img.shields.io/docsrs/smtp-test-tool)](https://docs.rs/smtp-test-tool)
 [![License: MIT OR Apache-2.0](https://img.shields.io/crates/l/smtp-test-tool.svg)](#license)
@@ -165,14 +165,14 @@ winget install StruisICT.SmtpTestTool
 ```
 
 ```powershell
-scoop bucket add struis112 https://github.com/Struis112/scoop-bucket
+scoop bucket add struisict https://github.com/StruisICT/scoop-bucket
 scoop install smtp-test-tool
 ```
 
 ### macOS / Linux: Homebrew
 
 ```sh
-brew tap struis112/tap
+brew tap struisict/tap
 brew install smtp-test-tool
 ```
 
@@ -183,7 +183,7 @@ The tap and Scoop bucket are auto-updated by
 ### Download a prebuilt binary
 
 Grab the latest release for your OS from
-[GitHub Releases](https://github.com/Struis112/smtp-test-tool/releases).
+[GitHub Releases](https://github.com/StruisICT/smtp-test-tool/releases).
 
 | OS                 | File                                                 |
 |--------------------|------------------------------------------------------|
@@ -304,7 +304,7 @@ That second-to-last line is what you forward to IT.
 Requires **Rust 1.92 or newer** (stable). The egui ecosystem sets this floor; building CLI-only with `--no-default-features` would in practice work on slightly older toolchains.
 
 ```sh
-git clone https://github.com/Struis112/smtp-test-tool
+git clone https://github.com/StruisICT/smtp-test-tool
 cd smtp-test-tool
 cargo build --release
 # CLI:  target/release/smtp-test-tool

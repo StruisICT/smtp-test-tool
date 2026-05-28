@@ -8,14 +8,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- **WinGet package identifier renamed** from `Struis112.SmtpTestTool`
-  to `StruisICT.SmtpTestTool` to reflect the project's release brand
-  (the GitHub username `Struis112` remains the owner of the upstream
-  repository, but the WinGet `Publisher` field now reads `StruisICT`).
-  When PR'd to `microsoft/winget-pkgs`, the manifest path becomes
-  `manifests/s/StruisICT/SmtpTestTool/<version>/`.  No effect on any
-  user who installed via the v0.1.6 / v0.2.0 binaries, GitHub release,
-  or `cargo install` - those paths never touched the identifier.
+- **Repository moved** from `github.com/Struis112/smtp-test-tool`
+  to `github.com/StruisICT/smtp-test-tool`.  GitHub auto-redirects
+  the old URL for ~12 months so existing clones, badges, and links
+  keep working; new bookmarks should use the StruisICT URL.
+- **Scoop bucket moved** to `github.com/StruisICT/scoop-bucket`.
+  New install: `scoop bucket add struisict
+  https://github.com/StruisICT/scoop-bucket`.  The previous
+  `struis112` alias keeps working via GitHub's redirect; users can
+  switch with `scoop bucket rm struis112; scoop bucket add
+  struisict https://github.com/StruisICT/scoop-bucket`.
+- **Homebrew tap moved** to `github.com/StruisICT/homebrew-tap`.
+  New install: `brew tap struisict/tap`.  Existing taps under
+  `struis112/tap` keep resolving via the redirect.
+- WinGet PR `microsoft/winget-pkgs#379411` was **withdrawn** while
+  we move the project's organisational home.  The manifests in
+  `packaging/winget/` stay current via the release workflow; we may
+  resubmit later under the StruisICT publisher once the migration
+  has settled.
 
 ## [0.2.0] - 2026-05-26
 
@@ -350,8 +360,8 @@ was removed or renamed.
   baseline, dark+light mode on every OS is mandatory, atomic
   conventional commits, no shortcuts.
 
-[Unreleased]: https://github.com/Struis112/smtp-test-tool/compare/v0.1.3...HEAD
-[0.1.3]: https://github.com/Struis112/smtp-test-tool/compare/v0.1.2...v0.1.3
-[0.1.2]: https://github.com/Struis112/smtp-test-tool/compare/v0.1.1...v0.1.2
-[0.1.1]: https://github.com/Struis112/smtp-test-tool/compare/v0.1.0...v0.1.1
-[0.1.0]: https://github.com/Struis112/smtp-test-tool/releases/tag/v0.1.0
+[Unreleased]: https://github.com/StruisICT/smtp-test-tool/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/StruisICT/smtp-test-tool/compare/v0.1.2...v0.1.3
+[0.1.2]: https://github.com/StruisICT/smtp-test-tool/compare/v0.1.1...v0.1.2
+[0.1.1]: https://github.com/StruisICT/smtp-test-tool/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/StruisICT/smtp-test-tool/releases/tag/v0.1.0
