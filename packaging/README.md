@@ -48,6 +48,33 @@ GitHub Action wraps it.  We do **not** auto-PR (cross-repo PATs are
 risky for a hobby project); the maintainer copies the YAMLs and
 submits the PR manually after each release.
 
+#### Pre-submission checklist (verified against winget-pkgs `doc/`)
+
+- [ ] **Schema is the recommended version.** Currently **1.12.0** in
+      all three files (`ManifestVersion` + the `$schema` comment).
+      1.10.0 is still accepted; older versions get
+      `Manifest-Version-Deprecated`.
+- [ ] **One package version per PR**, files only under
+      `manifests/s/StruisICT/SmtpTestTool/<version>/`.  No README /
+      tooling / unrelated edits in the same PR (`PullRequest-Error`).
+- [ ] **Filenames + folder casing exactly match the
+      PackageIdentifier** (`StruisICT.SmtpTestTool.*`,
+      case-sensitive) (`Manifest-Path-Error`).
+- [ ] **`InstallerUrl` is the direct HTTPS GitHub release asset** for
+      that version (no CDN/redirect/shortener) and returns 200
+      (`Validation-Domain` / `URL-Validation-Error`).
+- [ ] **`InstallerSha256` matches the live asset** — the release
+      workflow generates it, but re-hash before submitting:
+      `winget hash <zip>` or `sha256sum`.
+- [ ] **Validate locally** on Windows before opening the PR:
+      `winget validate --manifest packaging/winget` and, ideally, a
+      Windows Sandbox install test (`doc/tools/SandboxTest.md`).
+- [ ] **The Microsoft CLA is signed** by the GitHub account opening
+      the PR — one-time, prompted on first PR (`Needs-CLA`).
+
+All content checks above were confirmed against the v0.2.0 release
+asset (hash + zip layout + URL) on 2026-06-09.
+
 ### Scoop
 
 Mirror `scoop/smtp-test-tool.json` to the

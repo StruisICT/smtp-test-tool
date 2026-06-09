@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   conventions, and the step-by-step release procedure.
 
 ### Changed
+- **WinGet manifests bumped to schema 1.12.0** (from 1.10.0), the
+  version recommended by `microsoft/winget-pkgs`, to avoid a future
+  `Manifest-Version-Deprecated`.  Added a pre-submission checklist to
+  `packaging/README.md` derived from the upstream authoring +
+  validation docs; the v0.2.0 release asset was re-verified
+  (SHA-256, zip layout, direct HTTPS URL) ahead of resubmission.
 - **Release CI now gates the GitHub Release on version consistency.**
   The tag, `Cargo.toml`, and a matching `## [X.Y.Z]` CHANGELOG
   section must all agree before binaries are published (previously
