@@ -147,7 +147,87 @@ main          ← protected, always green, always shippable
 
 ---
 
-## 6. Current state & resume context
+## 6. Versioning (SemVer 2.0.0)
+
+This project follows [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
+to the letter. Versions are `MAJOR.MINOR.PATCH`, optionally with a
+`-prerelease` and/or `+build` suffix. `Cargo.toml` is the single
+source of truth for the number; the git tag is the same value with a
+`v` prefix (`vX.Y.Z`).
+
+### What counts as the public API
+
+A change is **breaking** if it breaks any of these contracts for an
+existing user:
+
+1. **Library surface** — anything reachable from `smtp_test_tool::`
+   (the `pub` items re-exported in `src/lib.rs`): types, fields,
+   function signatures, enum variants, trait impls, and the set of
+   Cargo feature names.
+2. **CLI contract** — subcommand names, flag/argument names and their
+   meaning, and the documented exit codes (`0` pass, `1` fail,
+   `2` config/internal error).
+3. **Config + persistence schema** — the TOML keys in
+   `smtp_test_tool.toml` and their semantics, plus the OS-keychain
+   entry naming.
+
+Internal modules, private items, log wording, and the exact text of
+diagnostic hints are **not** part of the public API and may change in
+any release.
+
+### Choosing the bump
+
+- **MAJOR** — remove or rename a public item, change a function
+  signature or a CLI flag, change an exit code, drop a config key, or
+  any other backward-incompatible change.
+- **MINOR** — add a public item, CLI subcommand/flag, config key,
+  protocol, provider preset, locale, or Cargo feature in a
+  backward-compatible way (also: mark something deprecated without
+  removing it).
+- **PATCH** — a backward-compatible bug fix only; no new public
+  surface.
+
+### 0.y.z (we are here)
+
+While the version is `0.y.z` the public API is **not** stable
+(spec §4). Our self-imposed discipline during 0.x:
+
+- A breaking change bumps the **MINOR**: `0.2.x` → `0.3.0`.
+- A backward-compatible feature or fix bumps the **PATCH**:
+  `0.2.0` → `0.2.1`.
+- `1.0.0` is the first release that *commits* to a stable API. Do
+  not cut it until the library surface, CLI, and config schema are
+  ones we are willing to keep stable.
+
+### Pre-releases and build metadata
+
+- Pre-release identifiers (`1.0.0-rc.1`, `0.3.0-beta.2`) are
+  dot-separated alphanumerics and rank **below** the matching
+  release. A tag containing a `-` is published as a GitHub
+  *prerelease* automatically (`release.yml`).
+- Build metadata (`+…`) is permitted by the spec but we do not use
+  it; it is ignored for precedence.
+- **MSRV is orthogonal to SemVer.** Raising the Rust floor (now
+  1.92) is recorded in the CHANGELOG and, for the published library,
+  treated as **at least a MINOR** bump.
+
+### Release procedure
+
+1. Pick the bump using the rules above.
+2. Edit `version` in `Cargo.toml`; run `cargo build` so `Cargo.lock`
+   updates its own package entry too.
+3. In `CHANGELOG.md`, rename `## [Unreleased]` to
+   `## [X.Y.Z] - YYYY-MM-DD` and open a fresh empty `## [Unreleased]`
+   above it.
+4. Commit `chore(release): bump to X.Y.Z`.
+5. `git tag -a vX.Y.Z -m "vX.Y.Z"` and push the tag. CI gates the
+   release on tag == `Cargo.toml` == a matching `CHANGELOG` section,
+   then builds binaries, publishes, and refreshes the package
+   manifests.
+
+---
+
+## 7. Current state & resume context
 
 > Snapshot for whoever (human or AI) picks this up next — on a fresh
 > PC, a different tool, or weeks later. **Keep this section current:**
