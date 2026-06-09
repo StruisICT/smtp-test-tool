@@ -68,7 +68,7 @@ under `Formula/smtp-test-tool.rb`.  Users add the tap once and
 * **Discoverability.**  `winget search smtp` should find us.
 * **No Rust toolchain needed.**  Most IT staff who use this tool will
   not have `cargo` installed.
-* **Free.**  All three managers cost zero per AGENTS.md \u00a72.
+* **Free.**  All three managers cost zero per AGENTS.md §2.
 
 ## Why not snap / flatpak / AUR?
 
