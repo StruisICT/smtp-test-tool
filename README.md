@@ -97,9 +97,9 @@ Shipped in v0.1.6 — **36 languages** (11 non-Latin scripts):
 | `zh` | 简体中文 | machine-translated, native review welcome (needs system CJK font) |
 
 Latin / Cyrillic / Greek locales render with eframe's bundled
-`Inter`/`Hack` fonts.  The nine non-Latin locales (`zh`, `ja`, `ko`,
-`ar`, `fa`, `he`, `hi`, `bn`, `th`) need a system-installed font that
-covers their script.  Modern Windows / macOS / Linux desktops ship
+`Inter`/`Hack` fonts.  The eleven non-Latin locales (`zh`, `ja`, `ko`,
+`ar`, `fa`, `he`, `hi`, `bn`, `ta`, `te`, `th`) need a system-installed
+font that covers their script.  Modern Windows / macOS / Linux desktops ship
 one out of the box:
 
 | Script | Windows | macOS | Linux (Noto) |
@@ -116,10 +116,7 @@ At startup the GUI consults `fontdb` to find one and appends it to
 egui's fallback chain; **nothing is bundled into the binary**.  If
 your distro lacks the relevant Noto package, glyphs will render as
 tofu — install `fonts-noto-cjk` / `fonts-noto-arabic` /
-`fonts-noto-hebrew` / `fonts-noto` to fix.  Tamil and Telugu
-translations will land in a future release; the font discovery list
-already covers their scripts so they will render the moment the
-translation drops.
+`fonts-noto-hebrew` / `fonts-noto` to fix.
 
 See [`CONTRIBUTING.md` § Translations](CONTRIBUTING.md#translations)
 for the native-review recipe — PRs welcome.
@@ -144,6 +141,20 @@ for the native-review recipe — PRs welcome.
 - **Profiles** in a human-readable TOML file (`smtp_test_tool.toml`)
   auto-loaded from the executable's directory, so "verify the
   last-known-good settings still work" is one click.
+- **DNS-side audit** (feature `dns`): MX / SPF / DMARC lookups, MX-host
+  A/AAAA resolution, and IT-actionable hints sorted by severity
+  (`Critical` / `Warning` / `Info`) — catches the ~90% of mail-flow
+  failures that are actually DNS misconfiguration (missing MX, MX with
+  no A record, `+all` SPF, missing or `p=none` DMARC). CLI:
+  `smtp-test-tool dns <domain>` (`--json` for machines; non-zero exit
+  on any Critical hint, for shell-script alerting). GUI: a **DNS check**
+  tab that audits on a background thread.
+- **OAuth2 device-code flow for Microsoft 365** (feature `oauth`,
+  RFC 8628): mint an XOAUTH2 token without storing a password. CLI:
+  `smtp-test-tool oauth-login --user <account>` prints a URL + code,
+  polls until you authorise in the browser, then stores the refresh
+  token in the OS keychain so later runs auto-mint a fresh access
+  token. GUI: device-code login wired into the credentials block.
 - **Accessibility is the baseline, not the goal.** The GUI follows the
   OS dark/light setting on Windows, macOS, and Linux; colour is never
   the only signal (every `[ PASS ]` / `[ FAIL ]` is also textual);
@@ -223,6 +234,12 @@ smtp-test-tool profiles
 
 # Verbose diagnostic trace
 smtp-test-tool --log-level debug
+
+# Audit a domain's mail DNS (MX / SPF / DMARC); --json for machines
+smtp-test-tool dns example.com
+
+# Microsoft 365 device-code login: stores a refresh token in the keychain
+smtp-test-tool oauth-login --user me@contoso.com
 ```
 
 The exit code is `0` if every enabled protocol passes, `1` if any
@@ -329,10 +346,18 @@ src/
 ├── lib.rs            re-exports + Outlook defaults
 ├── config.rs         TOML config with named profiles
 ├── diagnostics.rs    server-response -> human hint translators
+├── providers.rs      built-in provider presets (Outlook, Gmail, ...)
 ├── tls.rs            rustls ClientConfig builder
 ├── smtp.rs           SMTP test (lettre)
 ├── imap.rs           IMAP test (hand-rolled on rustls)
 ├── pop3.rs           POP3 test (hand-rolled on rustls)
+├── dns.rs            MX / SPF / DMARC audit + hints   (feature `dns`)
+├── oauth.rs          M365 device-code flow (RFC 8628) (feature `oauth`)
+├── keystore.rs       OS keychain backing            (feature `keychain`)
+├── i18n.rs           translation registry + key lookup
+├── locale.rs         OS-locale detection
+├── fonts.rs          system-font discovery for non-Latin scripts
+├── theme.rs          OS dark/light follow + WCAG AAA palettes
 ├── runner.rs         orchestrator (run enabled protocols, summarise)
 └── bin/
     ├── cli.rs        clap-based CLI
