@@ -144,3 +144,61 @@ main          ← protected, always green, always shippable
   anything else. If unsure, `git stash` and ask the user.
 - Tell the user the truth, including "I can't verify X right now
   because Y". Do not bluff.
+
+---
+
+## 6. Current state & resume context
+
+> Snapshot for whoever (human or AI) picks this up next — on a fresh
+> PC, a different tool, or weeks later. **Keep this section current:**
+> when you ship something here, update the "Shipped" list, bump the
+> version note, and re-prioritise "Next up" before you finish a
+> session. Treat a stale snapshot here as a bug.
+
+### Where things live
+
+- **Repo / org:** `github.com/StruisICT/smtp-test-tool` (moved from
+  `Struis112`; old URLs redirect for ~12 months).
+- **Crate:** `smtp-test-tool` on crates.io (lib name `smtp_test_tool`).
+- **Binaries:** `smtp-test-tool` (CLI) + `smtp-test-tool-gui` (GUI,
+  `gui` feature). Single static binary per OS, no host OpenSSL.
+- **Package channels:** WinGet (`StruisICT.SmtpTestTool`), Scoop
+  (`struisict` bucket), Homebrew (`struisict/tap`). Manifests in
+  `packaging/`, auto-refreshed by `.github/workflows/release.yml`.
+- **Default features:** `gui`, `keychain`, `dns`, `oauth`.
+
+### Shipped (as of v0.2.0)
+
+- SMTP (lettre) + hand-rolled IMAP / POP3 over rustls, full wire trace.
+- IT-actionable diagnostics (M365 error-code translation).
+- 11 provider presets; TOML profiles; OS-keychain credential storage.
+- DNS audit (MX / SPF / DMARC + hints), CLI `dns` + GUI **DNS check**.
+- M365 OAuth2 device-code flow (RFC 8628), CLI `oauth-login` + GUI.
+- 36 locales / 11 scripts, OS dark/light follow, WCAG 2.2 AAA, AccessKit.
+
+### In flight (`## [Unreleased]` in CHANGELOG.md)
+
+- Org/brand migration `Struis112` → `StruisICT` (repo, Scoop bucket,
+  Homebrew tap). The WinGet PR was **withdrawn** during the move and
+  needs re-submitting under the `StruisICT` publisher.
+
+### Next up (suggested order — confirm with the maintainer)
+
+1. Cut a release for the migration changes (bump version, tag, let CI
+   publish), then re-submit the WinGet PR (`packaging/README.md` has
+   the recipe).
+2. New diagnostic: DKIM record lookup/validation (natural companion to
+   the existing SPF/DMARC audit in `src/dns.rs`); then MTA-STS /
+   TLS-RPT / BIMI as follow-ups.
+
+### Verify-green checklist (run before any commit)
+
+```sh
+cargo fmt --all -- --check
+cargo clippy --all-targets --all-features -- -D warnings
+cargo test  --all-features
+cargo deny  check
+```
+
+GUI screenshots regenerate via `tools/` (see `tools/README.md`) and
+must be attached for any user-facing change, in **both** themes.
