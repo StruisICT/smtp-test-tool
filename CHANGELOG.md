@@ -7,7 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Documented SemVer 2.0.0 policy** (`AGENTS.md` §6): defines the
+  project's public-API surface (library exports, CLI contract,
+  config/keychain schema), the MAJOR/MINOR/PATCH rules, the `0.y.z`
+  discipline we follow until `1.0.0`, pre-release/build-metadata
+  conventions, and the step-by-step release procedure.
+
 ### Changed
+- **Release CI now gates the GitHub Release on version consistency.**
+  The tag, `Cargo.toml`, and a matching `## [X.Y.Z]` CHANGELOG
+  section must all agree before binaries are published (previously
+  this was only checked in the crates.io publish job).
 - **Repository moved** from `github.com/Struis112/smtp-test-tool`
   to `github.com/StruisICT/smtp-test-tool`.  GitHub auto-redirects
   the old URL for ~12 months so existing clones, badges, and links
