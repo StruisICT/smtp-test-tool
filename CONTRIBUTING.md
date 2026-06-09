@@ -40,16 +40,24 @@ The Definition of Done is in [`AGENTS.md §3`](AGENTS.md). In short:
 
 ## Translations
 
-The tool ships translations for 25 languages under
-`locales/<bcp47>.toml`.  As of v0.1.3 the set is:
+The tool ships translations for 36 languages (11 non-Latin scripts)
+under `locales/<bcp47>.toml`.  The set is:
 
 * `en` — base, hand-maintained by the maintainer.  Every key the
   code looks up MUST exist here.
 * `nl` — native-quality (the maintainer is a Dutch speaker).
-* `bg`, `cs`, `da`, `de`, `el`, `es`, `fi`, `fr`, `hr`, `hu`, `id`,
-  `it`, `no`, `pl`, `pt`, `ro`, `ru`, `sk`, `sr`, `sv`, `tr`, `uk`,
-  `vi` — **machine-translated**, native review welcome.  Each
+* `ar`, `bg`, `bn`, `cs`, `da`, `de`, `el`, `es`, `fa`, `fi`, `fr`,
+  `he`, `hi`, `hr`, `hu`, `id`, `it`, `ja`, `ko`, `no`, `pl`, `pt`,
+  `ro`, `ru`, `sk`, `sr`, `sv`, `ta`, `te`, `th`, `tr`, `uk`, `vi`,
+  `zh` — **machine-translated**, native review welcome.  Each
   file's `locale.status_note` says so in that file's own language.
+  The non-Latin scripts (CJK `zh`/`ja`/`ko`, Arabic `ar`/`fa`,
+  Hebrew `he`, Indic `hi`/`bn`/`ta`/`te`, Thai `th`) rely on a
+  system-installed font discovered at startup — see the README
+  *Languages* table.
+
+The authoritative count lives in `src/i18n.rs` (`LOCALES`); keep this
+list and the README *Languages* table in sync when you add one.
 
 ### Reviewing a machine-translated file
 
