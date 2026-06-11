@@ -7,7 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Accessibility: status colours now actually meet WCAG 2.2 AAA in
+  both themes.** The PASS/FAIL result chips used a single colour for
+  both themes, tuned for light backgrounds, so on the dark theme PASS
+  green was only **3.2:1** and FAIL red **2.1:1** — below even AA, and
+  contradicting the README's AAA claim. Chips (and a couple of
+  AA-only log-level colours) are now theme-aware and every semantic
+  colour clears ≥ 7:1 against the egui panel background. Two new
+  tests (`status_chip_colors_meet_wcag_aaa`,
+  `log_level_colors_meet_wcag_aaa`) compute the real contrast ratios
+  and fail the build on any regression.
+- Corrected a vacuous i18n fallback test that asserted on `app.name`
+  (which every locale actually ships); it now exercises the
+  English-fallback path with a genuinely en-only key.
+
 ### Added
+- **i18n key-parity guards.** Two tests keep all 36 locales
+  structurally in lock-step with `en.toml`: no locale may define a
+  key absent from English (catches translator typos / stale keys),
+  and every English key must exist in every locale bar a documented
+  allowlist. The allowlist currently records that the v0.2.0 DNS-check
+  and Microsoft-365 OAuth-login UI strings were never translated
+  beyond English (9 keys) — they fall back to English at runtime;
+  translating them is tracked tech-debt.
+- **`SECURITY.md`** — a private vulnerability-reporting policy and a
+  summary of how credentials are handled (keychain-only, never on
+  disk), surfaced in GitHub's Security tab.
+- **Build-provenance attestation** on every release archive
+  (`actions/attest-build-provenance`): users can run
+  `gh attestation verify <file> --repo StruisICT/smtp-test-tool` to
+  confirm a download was built by this repo's CI. README documents it.
 - **Documented SemVer 2.0.0 policy** (`AGENTS.md` §6): defines the
   project's public-API surface (library exports, CLI contract,
   config/keychain schema), the MAJOR/MINOR/PATCH rules, the `0.y.z`
@@ -15,6 +45,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   conventions, and the step-by-step release procedure.
 
 ### Changed
+- Added `// SAFETY:` justifications to the three non-test panics
+  (`imap.rs` / `pop3.rs` STARTTLS `unreachable!`, `i18n.rs` locale-TOML
+  `panic!`) as required by AGENTS.md §3, and documented the deliberate
+  size-optimised release profile (`opt-level = "z"`) in `Cargo.toml`.
+- Corrected the Definition of Done in `AGENTS.md` / `CONTRIBUTING.md`:
+  diagnostics fixtures live inline in `src/diagnostics.rs`, not in a
+  (non-existent) `tests/diagnostics.rs`.
 - **WinGet manifests bumped to schema 1.12.0** (from 1.10.0), the
   version recommended by `microsoft/winget-pkgs`, to avoid a future
   `Manifest-Version-Deprecated`.  Added a pre-submission checklist to
