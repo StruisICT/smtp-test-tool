@@ -117,6 +117,10 @@ jobs:
     name: GitHub Release
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write       # create the GitHub Release + upload assets
+      id-token: write       # OIDC token used to sign the provenance
+      attestations: write   # write the build-provenance attestation
     steps:
       - uses: actions/checkout@v6
       # SemVer gate (AGENTS.md §6): the binary release must not ship
@@ -146,6 +150,17 @@ jobs:
           mkdir -p release
           find artifacts -mindepth 2 -type f -exec mv {} release/ \;
           ls -la release/
+      # Verifiable SLSA build provenance for every shipped archive.  This
+      # is a security tool that handles live credentials, so users can run
+      #   gh attestation verify <file> --repo StruisICT/smtp-test-tool
+      # to confirm a download was built by this workflow and not tampered
+      # with.  Free; signs via GitHub's OIDC + Sigstore, nothing to host.
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: |
+            release/*.tar.gz
+            release/*.zip
       - name: Create / update GitHub Release
         uses: softprops/action-gh-release@v3
         with:

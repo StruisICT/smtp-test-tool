@@ -206,6 +206,17 @@ Grab the latest release for your OS from
 Each archive contains both `smtp-test-tool` (CLI) and
 `smtp-test-tool-gui` (GUI).
 
+**Verify your download (optional but recommended).** Every release
+archive ships with a [SLSA build-provenance attestation], so you can
+confirm it was built by this repository's CI and not tampered with:
+
+```sh
+gh attestation verify smtp-test-tool-x86_64-pc-windows-msvc.zip \
+  --repo StruisICT/smtp-test-tool
+```
+
+[SLSA build-provenance attestation]: https://docs.github.com/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds
+
 ### With Cargo
 
 ```sh
