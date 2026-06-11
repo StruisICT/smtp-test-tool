@@ -92,7 +92,11 @@ pub fn run(p: &Profile) -> Result<bool> {
         info!(protocol = "imap", "STARTTLS negotiated");
         let tcp = match stream {
             Stream::Plain(_, w) => w,
-            _ => unreachable!(),
+            // SAFETY: this block only runs when imap_security == StartTls,
+            // which is mutually exclusive with the SSL path that creates a
+            // Stream::Tls. A STARTTLS connection is still cleartext at this
+            // point, so `stream` is always Stream::Plain here.
+            _ => unreachable!("STARTTLS upgrade reached with a non-plain stream"),
         };
         stream = Stream::Tls(Box::new(BufReader::new(tls_wrap(
             &tls_cfg,
