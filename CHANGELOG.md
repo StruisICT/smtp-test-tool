@@ -45,6 +45,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   conventions, and the step-by-step release procedure.
 
 ### Changed
+- **Split the 1,446-line GUI binary into focused modules** per
+  AGENTS.md rule #5: `src/bin/gui.rs` now owns just the `App` state and
+  the eframe update loop, with `gui/logging.rs` (tracing layer),
+  `gui/palette.rs` (theme visuals + WCAG-AAA colours and their tests),
+  and `gui/tabs.rs` (per-tab views). No behaviour change.
+- **README badges**: dropped the crates.io and docs.rs badges (the
+  crate is not published yet, so they 404) and made the licence badge
+  static; added a GitHub-release version badge that actually resolves.
 - Added `// SAFETY:` justifications to the three non-test panics
   (`imap.rs` / `pop3.rs` STARTTLS `unreachable!`, `i18n.rs` locale-TOML
   `panic!`) as required by AGENTS.md §3, and documented the deliberate

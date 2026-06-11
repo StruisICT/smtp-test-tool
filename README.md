@@ -1,9 +1,8 @@
 # smtp-test-tool
 
 [![CI](https://github.com/StruisICT/smtp-test-tool/actions/workflows/ci.yml/badge.svg)](https://github.com/StruisICT/smtp-test-tool/actions/workflows/ci.yml)
-[![crates.io](https://img.shields.io/crates/v/smtp-test-tool.svg)](https://crates.io/crates/smtp-test-tool)
-[![docs.rs](https://img.shields.io/docsrs/smtp-test-tool)](https://docs.rs/smtp-test-tool)
-[![License: MIT OR Apache-2.0](https://img.shields.io/crates/l/smtp-test-tool.svg)](#license)
+[![Latest release](https://img.shields.io/github/v/release/StruisICT/smtp-test-tool?sort=semver)](https://github.com/StruisICT/smtp-test-tool/releases)
+[![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](#license)
 [![MSRV](https://img.shields.io/badge/MSRV-1.92-blue.svg)](#building-from-source)
 
 > Cross-platform **SMTP / IMAP / POP3** connectivity tester with
