@@ -109,7 +109,9 @@ A pull request is **only** ready to merge when **all** of these are true:
       the PR, plus a paragraph describing the keyboard path through the
       new UI.
 - [ ] If protocol-affecting: example real-world server diagnostic added
-      to `tests/diagnostics.rs`.
+      to the `#[cfg(test)]` module in `src/diagnostics.rs` (the
+      diagnostics fixtures live inline with the translator they
+      exercise, not in a separate `tests/` integration file).
 - [ ] `CHANGELOG.md` updated under `## [Unreleased]`.
 - [ ] No `unwrap()` / `expect()` in non-test code without a
       `// SAFETY:`-style comment justifying it.

@@ -125,6 +125,14 @@ ureq      = { version = "3",   optional = true, default-features = false, featur
 serde_json     = { version = "1", optional = true }
 serde_urlencoded = { version = "0.7", optional = true }
 
+# Tuned for download size, not raw throughput: this is an I/O- and
+# network-bound diagnostic tool (it waits on TLS handshakes and server
+# replies, not on CPU), so `opt-level = "z"` trades a negligible amount
+# of runtime speed for a meaningfully smaller binary that IT staff pull
+# from a release page or a package manager.  `panic = "abort"` drops the
+# unwinding tables (smaller still) and matches our "a panic is a bug, not
+# a recoverable condition" stance.  Revisit `opt-level` if a future
+# CPU-bound feature (bulk crypto, large parsing) lands.
 [profile.release]
 lto             = "thin"
 codegen-units   = 1

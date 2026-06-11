@@ -30,7 +30,7 @@ The Definition of Done is in [`AGENTS.md §3`](AGENTS.md). In short:
   attached to the PR description, plus a description of the
   keyboard path through any new UI.
 - If protocol-affecting: a real-world server reply added as a
-  fixture to `tests/diagnostics.rs`.
+  fixture to the `#[cfg(test)]` module in `src/diagnostics.rs`.
 - No `unwrap()` / `expect()` in non-test code without a `// SAFETY:`
   comment justifying it.
 - No new dependency added without verifying it is the latest stable
