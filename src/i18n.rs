@@ -131,6 +131,10 @@ type FlatTable = HashMap<String, String>;
 static TABLES: Lazy<HashMap<&'static str, FlatTable>> = Lazy::new(|| {
     let mut out: HashMap<&'static str, FlatTable> = HashMap::new();
     for (code, src) in LOCALES {
+        // SAFETY: `src` is an include_str! of a locale file embedded at
+        // compile time, so invalid TOML is an authoring/build error, never
+        // runtime input. Failing loud here is intentional and is exercised
+        // by every test that touches TABLES (and thus by `cargo test`).
         let parsed: toml::Value =
             toml::from_str(src).unwrap_or_else(|e| panic!("locale '{code}' has invalid TOML: {e}"));
         let mut flat = FlatTable::new();
@@ -332,12 +336,16 @@ mod tests {
 
     #[test]
     fn t_falls_back_to_base_when_key_missing_in_active_locale() {
-        // 'app.name' is intentionally defined ONLY in en.toml; nl.toml
-        // omits it on purpose so this test exercises the fallback.
+        // 'test.fixture.greeting' is defined ONLY in en.toml (see EN_ONLY
+        // in the parity tests below), so under any other locale the
+        // lookup MUST fall through to the English string rather than
+        // returning the bare key.  (Earlier this used 'app.name', but
+        // every locale actually ships app.name, so the assertion was
+        // vacuous - it never crossed the fallback path.)
         let _g = LocaleTestGuard::set("nl");
-        let s = t("app.name");
+        let s = t("test.fixture.greeting");
         assert!(
-            !s.is_empty() && s != "app.name",
+            !s.is_empty() && s != "test.fixture.greeting",
             "expected English fallback for missing nl key, got: {s:?}"
         );
     }
@@ -355,5 +363,117 @@ mod tests {
         let _g = LocaleTestGuard::set("en");
         let s = t_with("test.fixture.greeting", &[("name", "world")]);
         assert_eq!(s, "Hello, world!");
+    }
+
+    // ---- locale key-parity guards -------------------------------------
+    //
+    // en.toml is the source of truth (CONTRIBUTING.md § Translations:
+    // "Every key the code looks up MUST exist here").  These two tests
+    // keep the 35 other locales structurally in lock-step with it, so a
+    // key added to en is not silently left untranslated and a translator
+    // typo does not create a key the code never reads.
+
+    use std::collections::BTreeSet;
+
+    /// Keys that intentionally live ONLY in en.toml.
+    const EN_ONLY: &[&str] = &[
+        // Test fixture consumed by the unit tests above; never user-visible.
+        "test.fixture.greeting",
+    ];
+
+    /// Keys that SHOULD be translated but are not present in the
+    /// machine-translated locales yet.  They were added to en.toml with
+    /// the v0.2.0 DNS-check and Microsoft-365 OAuth-login UI, but the
+    /// strings were never propagated to the other 35 locales, so they
+    /// currently fall back to English at runtime.  When a locale gains a
+    /// real translation for one of these, it stops being "missing" and
+    /// the `every_locale_covers_base_keys` test enforces it from then on.
+    /// Goal: translate these everywhere and shrink this list to empty.
+    const PENDING_TRANSLATION: &[&str] = &[
+        "ui.tab.dns",
+        "ui.dns.audit",
+        "ui.dns.clear",
+        "ui.dns.domain",
+        "ui.dns.intro",
+        "ui.dns.no_results_yet",
+        "ui.dns.running",
+        "ui.servers.oauth_login_m365",
+        "ui.servers.oauth_login_m365_tooltip",
+    ];
+
+    fn base_keys() -> BTreeSet<&'static str> {
+        TABLES[BASE].keys().map(String::as_str).collect()
+    }
+
+    /// No locale may define a key that en.toml does not have - that key
+    /// would be dead weight the lookup never reads, almost always a
+    /// translator typo or a stale key left behind after an en rename.
+    #[test]
+    fn no_locale_defines_keys_absent_from_base() {
+        let base = base_keys();
+        let mut problems = Vec::new();
+        for (code, table) in TABLES.iter() {
+            if *code == BASE {
+                continue;
+            }
+            let mut extra: Vec<&str> = table
+                .keys()
+                .map(String::as_str)
+                .filter(|k| !base.contains(k))
+                .collect();
+            if !extra.is_empty() {
+                extra.sort_unstable();
+                problems.push(format!(
+                    "'{code}' defines {} key(s) not in en.toml (typo or stale?): {extra:?}",
+                    extra.len()
+                ));
+            }
+        }
+        assert!(
+            problems.is_empty(),
+            "locale key drift:\n{}",
+            problems.join("\n")
+        );
+    }
+
+    /// Every en.toml key, minus the documented allowlists, must exist in
+    /// every shipped locale.  Catches the next "added an English string
+    /// and forgot the translations" regression at build time.
+    #[test]
+    fn every_locale_covers_base_keys() {
+        // Keep the allowlists honest: an entry that no longer exists in
+        // en.toml is a stale exemption and must be removed.
+        for k in EN_ONLY.iter().chain(PENDING_TRANSLATION) {
+            assert!(
+                TABLES[BASE].contains_key(*k),
+                "allowlisted key '{k}' is not in en.toml - remove the stale exemption"
+            );
+        }
+
+        let required: BTreeSet<&str> = base_keys()
+            .into_iter()
+            .filter(|k| !EN_ONLY.contains(k) && !PENDING_TRANSLATION.contains(k))
+            .collect();
+
+        let mut problems = Vec::new();
+        for (code, table) in TABLES.iter() {
+            if *code == BASE {
+                continue;
+            }
+            let keys: BTreeSet<&str> = table.keys().map(String::as_str).collect();
+            let mut missing: Vec<&str> = required.difference(&keys).copied().collect();
+            if !missing.is_empty() {
+                missing.sort_unstable();
+                problems.push(format!(
+                    "'{code}' missing {} required key(s): {missing:?}",
+                    missing.len()
+                ));
+            }
+        }
+        assert!(
+            problems.is_empty(),
+            "locale coverage gaps (translate the key, or add to PENDING_TRANSLATION with a reason):\n{}",
+            problems.join("\n")
+        );
     }
 }
