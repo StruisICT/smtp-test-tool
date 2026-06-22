@@ -54,7 +54,7 @@ jobs:
             archive: zip
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
@@ -122,7 +122,7 @@ jobs:
       id-token: write       # OIDC token used to sign the provenance
       attestations: write   # write the build-provenance attestation
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       # SemVer gate (AGENTS.md §6): the binary release must not ship
       # unless the tag, Cargo.toml, and a CHANGELOG section all agree.
       # Step-level `if` so manual workflow_dispatch reruns (no tag ref)
@@ -182,7 +182,7 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - name: Install Linux GUI build deps
         run: |
@@ -225,7 +225,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: main
           fetch-depth: 0
