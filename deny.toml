@@ -18,7 +18,39 @@ version = 2
 db-path = "~/.cargo/advisory-db"
 db-urls = ["https://github.com/rustsec/advisory-db"]
 yanked  = "deny"
-ignore  = []
+# Advisories we have consciously accepted.  Each entry MUST carry a
+# reason and be revisited whenever the dependency tree changes.  We only
+# ever silence "unmaintained"/"notice" advisories with no available fix
+# and no known exploit path - never an actual vulnerability.
+ignore = [
+    # RUSTSEC-2026-0192: `ttf-parser` is unmaintained (author has stated
+    # it will get no further fixes).  This is an *unmaintained* notice,
+    # not a vulnerability.  It reaches us only as the parsing backend of
+    # `fontdb` (GUI system-font discovery for the 11 non-Latin locales);
+    # `cargo tree -i ttf-parser` shows fontdb is its sole consumer.
+    # fontdb 0.23 (latest) has no build without it and there is no
+    # drop-in replacement - the suggested `skrifa` is a font *parser*,
+    # not a font *database*, so it does not cover fontdb's discovery role.
+    # Replacing fontdb wholesale is disproportionate to an unmaintained
+    # notice and would risk the working non-Latin glyph pipeline.
+    # Revisit if fontdb migrates off ttf-parser or a maintained
+    # discovery crate appears.  Tracking: harfbuzz/ttf-parser#217.
+    { id = "RUSTSEC-2026-0192", reason = "unmaintained-only notice; ttf-parser is fontdb's sole parser backend with no fix or drop-in replacement; revisit when fontdb moves off it" },
+
+    # RUSTSEC-2026-0194 / -0195: quick-xml DoS advisories (quadratic
+    # attribute scan / unbounded namespace allocation) that require
+    # *attacker-controlled XML* to trigger.  In our tree quick-xml is
+    # Linux-only and reached solely by `wayland-scanner`, a BUILD-TIME
+    # proc-macro that parses the trusted, crate-vendored Wayland protocol
+    # `.xml` definitions to generate code - never runtime or untrusted
+    # input, so the DoS path does not exist for us.  We cannot take the
+    # fix (>=0.41) yet: wayland-scanner 0.31 pins `quick-xml ^0.39`, and
+    # that comes in transitively via eframe 0.34 -> egui-winit ->
+    # smithay-client-toolkit.  Revisit when the eframe/winit stack bumps
+    # wayland-scanner past quick-xml 0.41.
+    { id = "RUSTSEC-2026-0194", reason = "quick-xml is build-time only (wayland-scanner codegen over trusted vendored protocol XML); no untrusted input, fix (>=0.41) blocked by wayland-scanner ^0.39 under eframe 0.34" },
+    { id = "RUSTSEC-2026-0195", reason = "quick-xml is build-time only (wayland-scanner codegen over trusted vendored protocol XML); no untrusted input, fix (>=0.41) blocked by wayland-scanner ^0.39 under eframe 0.34" },
+]
 
 # ---- licences ------------------------------------------------------------
 # Each entry below MUST correspond to a licence that at least one crate in
