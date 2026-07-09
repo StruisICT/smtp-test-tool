@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- **Cleared the `cargo deny` advisory backlog** after the RustSec
+  database flagged several transitive crates. Two are real runtime
+  issues, now fixed by lockfile bumps: `anyhow` 1.0.102 → 1.0.103
+  (RUSTSEC-2026-0190, unsound `Error::downcast_mut()`) and
+  `crossbeam-epoch` 0.9.18 → 0.9.20 (RUSTSEC-2026-0204, invalid
+  pointer deref in a `fmt::Pointer` impl). Three have no exploit path
+  in this tree and are documented, scoped ignores in `deny.toml`:
+  `ttf-parser` (RUSTSEC-2026-0192, *unmaintained* only — it is
+  `fontdb`'s sole parser backend with no drop-in replacement) and
+  `quick-xml` (RUSTSEC-2026-0194/-0195, DoS on *attacker-controlled*
+  XML — but it is reached only through `wayland-scanner`, a Linux
+  build-time proc-macro that parses the trusted vendored Wayland
+  protocol definitions; the fix is held back by `wayland-scanner`'s
+  `^0.39` pin under eframe 0.34). Each ignore carries a rationale and
+  a revisit condition; `cargo deny check` is green again.
+
 ### Fixed
 - **Accessibility: status colours now actually meet WCAG 2.2 AAA in
   both themes.** The PASS/FAIL result chips used a single colour for
