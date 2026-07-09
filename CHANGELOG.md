@@ -40,6 +40,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   English-fallback path with a genuinely en-only key.
 
 ### Added
+- **DKIM diagnostic.** The DNS audit now probes DKIM public-key
+  records at `<selector>._domainkey.<domain>` and reports on them,
+  rounding out the SPF/DMARC/DKIM triad. Because DKIM selectors cannot
+  be enumerated from DNS, the audit takes selectors from the caller
+  and falls back to a built-in `COMMON_DKIM_SELECTORS` list
+  (Microsoft 365, Google, SendGrid, Amazon SES, Proton, Fastmail,
+  Zoho, …) when none are given. New IT-actionable hints flag a
+  **revoked** key (empty `p=`, Critical), a **weak** <1024-bit RSA key
+  (Critical), a **1024-bit** key that should rotate to 2048 (Warning),
+  **testing mode** `t=y` (Warning), an unrecognised key type or wrong
+  `v=` version, and "no DKIM found at the selectors checked" (Info).
+  RSA key strength is measured by decoding the `p=` SubjectPublicKeyInfo
+  with a small, fully-tested DER walk (no heavy crypto dependency);
+  ed25519 keys (RFC 8463) are recognised as a fixed 256-bit.
+  - Library: new `DkimRecord` type, `dkim` + `dkim_selectors_checked`
+    fields on `DnsReport` (both `#[serde(default)]`, so older reports
+    still deserialise), `audit_domain_selectors()`, and the
+    `COMMON_DKIM_SELECTORS` constant. `audit_domain()` is unchanged and
+    still apex-only.
+  - CLI: `smtp-test-tool dns <domain>` now probes the common selectors
+    by default; narrow with `--dkim-selector <s>` (repeatable) or skip
+    DKIM with `--no-dkim`. JSON output gains the DKIM fields.
+  - GUI: a "DKIM selectors" field in the DNS tab (blank = probe common
+    selectors); results render in the report panel.
+  - Adds one dependency, `base64` 0.22 (gated behind the `dns`
+    feature), to decode the DKIM public key.
 - **i18n key-parity guards.** Two tests keep all 36 locales
   structurally in lock-step with `en.toml`: no locale may define a
   key absent from English (catches translator typos / stale keys),

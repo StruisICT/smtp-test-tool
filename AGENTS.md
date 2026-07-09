@@ -260,18 +260,33 @@ While the version is `0.y.z` the public API is **not** stable
 
 ### In flight (`## [Unreleased]` in CHANGELOG.md)
 
+- **DKIM diagnostic** — DNS audit now probes `<selector>._domainkey`
+  records, measures RSA key strength (DER walk of the `p=` SPKI) and
+  flags revoked / weak / 1024-bit / testing-mode keys. New
+  `DkimRecord`, `audit_domain_selectors()`, `COMMON_DKIM_SELECTORS`,
+  CLI `--dkim-selector` / `--no-dkim`, GUI selectors field. Adds the
+  `base64` 0.22 dep under the `dns` feature. Done + green (13 new
+  tests); the 9 new UI strings are English-only (tracked in
+  `i18n.rs::PENDING_TRANSLATION`).
 - Org/brand migration `Struis112` → `StruisICT` (repo, Scoop bucket,
   Homebrew tap). The WinGet PR was **withdrawn** during the move and
   needs re-submitting under the `StruisICT` publisher.
 
 ### Next up (suggested order — confirm with the maintainer)
 
-1. Cut a release for the migration changes (bump version, tag, let CI
-   publish), then re-submit the WinGet PR (`packaging/README.md` has
-   the recipe).
-2. New diagnostic: DKIM record lookup/validation (natural companion to
-   the existing SPF/DMARC audit in `src/dns.rs`); then MTA-STS /
-   TLS-RPT / BIMI as follow-ups.
+1. Cut a release for the migration + DKIM changes (bump version — DKIM
+   is a backward-compatible feature add, so PATCH → **0.2.1** under the
+   0.x discipline; tag, let CI publish), then re-submit the WinGet PR
+   (`packaging/README.md` has the recipe).
+2. More DNS diagnostics: MTA-STS / TLS-RPT / BIMI (each a natural
+   follow-up to the SPF/DMARC/DKIM audit in `src/dns.rs`).
+
+> **Heads-up for whoever runs `cargo deny` next:** it currently FAILS
+> on `RUSTSEC-2026-0192` (`ttf-parser` unmaintained, pulled transitively
+> by `fontdb`, the GUI font-discovery dep). This is unrelated to DKIM
+> and predates it. Decide separately: ignore it in `deny.toml` with a
+> rationale, or migrate `fontdb`→`skrifa`/alternative. `bans`,
+> `licenses`, and `sources` all still pass.
 
 ### Verify-green checklist (run before any commit)
 

@@ -132,12 +132,14 @@ hints_heading = "Hints"
 no_hints_yet = "(no hints yet - paste a bounce above and click Analyse)"
 
 [ui.dns]
-intro  = "Look up MX, SPF, and DMARC for a mail domain.  Failures here cause many of the bounces other tools blame on SMTP.  Network-bound; ~1-2s per audit using your system's DNS resolver."
+intro  = "Look up MX, SPF, DMARC, and DKIM for a mail domain.  Failures here cause many of the bounces other tools blame on SMTP.  Network-bound; ~1-2s per audit using your system's DNS resolver."
 domain = "Domain:"
 audit  = "Audit"
 running = "Auditing..."
 clear  = "Clear"
 no_results_yet = "(no audit yet - type a domain above and click Audit)"
+dkim_selectors = "DKIM selectors:"
+dkim_hint = "blank = probe common selectors"
 
 [ui.log]
 heading = "Log"

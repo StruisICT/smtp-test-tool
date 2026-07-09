@@ -393,6 +393,8 @@ mod tests {
         "ui.tab.dns",
         "ui.dns.audit",
         "ui.dns.clear",
+        "ui.dns.dkim_hint",
+        "ui.dns.dkim_selectors",
         "ui.dns.domain",
         "ui.dns.intro",
         "ui.dns.no_results_yet",
