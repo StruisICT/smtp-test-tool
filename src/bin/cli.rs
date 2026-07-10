@@ -105,10 +105,17 @@ enum Cmd {
     #[command(subcommand)]
     Keychain(KeychainCmd),
     /// Run a DNS audit for a mail domain.  Looks up MX, SPF, DMARC,
-    /// resolves MX hosts to A/AAAA, then translates the answers into
-    /// IT-actionable hints ("your SPF ends with +all", "DMARC is
-    /// p=none", "this MX has no A record", ...).  Output is
-    /// human-readable text; use `--json` for machine parsing.
+    /// resolves MX hosts to A/AAAA, optionally probes DKIM selectors,
+    /// then translates the answers into IT-actionable hints ("your SPF
+    /// ends with +all", "DMARC is p=none", "this DKIM key is only
+    /// 1024-bit", ...).  Output is human-readable text; use `--json`
+    /// for machine parsing.
+    ///
+    /// DKIM selectors cannot be discovered from DNS, so by default we
+    /// probe a built-in list of common selectors (Microsoft 365,
+    /// Google, SendGrid, ...).  Narrow that with `--dkim-selector`
+    /// (repeatable) when you know the selector, or skip DKIM with
+    /// `--no-dkim`.
     #[cfg(feature = "dns")]
     Dns {
         /// Domain to audit (e.g. `example.com`, `gmail.com`).
@@ -116,6 +123,13 @@ enum Cmd {
         /// Emit machine-readable JSON instead of the formatted table.
         #[arg(long)]
         json: bool,
+        /// DKIM selector to probe (repeatable).  When given, only these
+        /// selectors are checked instead of the common-selector list.
+        #[arg(long = "dkim-selector", value_name = "SELECTOR")]
+        dkim_selector: Vec<String>,
+        /// Skip DKIM probing entirely (apex MX/SPF/DMARC only).
+        #[arg(long = "no-dkim", conflicts_with = "dkim_selector")]
+        no_dkim: bool,
     },
     /// Mint a Microsoft 365 XOAUTH2 token via the device-code flow.
     /// Prints a URL + code, polls until you authorise in the browser,
@@ -272,8 +286,22 @@ fn run() -> Result<bool> {
             return Ok(true);
         }
         #[cfg(feature = "dns")]
-        Cmd::Dns { domain, json } => {
-            let report = smtp_test_tool::dns::audit_domain(&domain)
+        Cmd::Dns {
+            domain,
+            json,
+            dkim_selector,
+            no_dkim,
+        } => {
+            // Decide which selectors to probe: none (--no-dkim), the
+            // user's explicit list, or the common-selector fallback.
+            let selectors: Vec<&str> = if no_dkim {
+                Vec::new()
+            } else if dkim_selector.is_empty() {
+                smtp_test_tool::dns::COMMON_DKIM_SELECTORS.to_vec()
+            } else {
+                dkim_selector.iter().map(String::as_str).collect()
+            };
+            let report = smtp_test_tool::dns::audit_domain_selectors(&domain, &selectors)
                 .with_context(|| format!("DNS audit failed for {domain}"))?;
             let hints = smtp_test_tool::dns::interpret(&report);
             if json {

@@ -140,11 +140,15 @@ for the native-review recipe — PRs welcome.
 - **Profiles** in a human-readable TOML file (`smtp_test_tool.toml`)
   auto-loaded from the executable's directory, so "verify the
   last-known-good settings still work" is one click.
-- **DNS-side audit** (feature `dns`): MX / SPF / DMARC lookups, MX-host
-  A/AAAA resolution, and IT-actionable hints sorted by severity
+- **DNS-side audit** (feature `dns`): MX / SPF / DMARC / DKIM lookups,
+  MX-host A/AAAA resolution, and IT-actionable hints sorted by severity
   (`Critical` / `Warning` / `Info`) — catches the ~90% of mail-flow
   failures that are actually DNS misconfiguration (missing MX, MX with
-  no A record, `+all` SPF, missing or `p=none` DMARC). CLI:
+  no A record, `+all` SPF, missing or `p=none` DMARC, a revoked or
+  weak <1024-bit DKIM key). DKIM selectors can't be enumerated from
+  DNS, so the audit probes a built-in common-selector list by default
+  (Microsoft 365, Google, SendGrid, …) or exactly the selectors you
+  pass with `--dkim-selector`; `--no-dkim` skips it. CLI:
   `smtp-test-tool dns <domain>` (`--json` for machines; non-zero exit
   on any Critical hint, for shell-script alerting). GUI: a **DNS check**
   tab that audits on a background thread.
@@ -245,8 +249,10 @@ smtp-test-tool profiles
 # Verbose diagnostic trace
 smtp-test-tool --log-level debug
 
-# Audit a domain's mail DNS (MX / SPF / DMARC); --json for machines
+# Audit a domain's mail DNS (MX / SPF / DMARC / DKIM); --json for machines
 smtp-test-tool dns example.com
+# Probe a specific DKIM selector instead of the common-selector list
+smtp-test-tool dns example.com --dkim-selector selector1
 
 # Microsoft 365 device-code login: stores a refresh token in the keychain
 smtp-test-tool oauth-login --user me@contoso.com
@@ -361,7 +367,7 @@ src/
 ├── smtp.rs           SMTP test (lettre)
 ├── imap.rs           IMAP test (hand-rolled on rustls)
 ├── pop3.rs           POP3 test (hand-rolled on rustls)
-├── dns.rs            MX / SPF / DMARC audit + hints   (feature `dns`)
+├── dns.rs            MX / SPF / DMARC / DKIM audit    (feature `dns`)
 ├── oauth.rs          M365 device-code flow (RFC 8628) (feature `oauth`)
 ├── keystore.rs       OS keychain backing            (feature `keychain`)
 ├── i18n.rs           translation registry + key lookup

@@ -34,11 +34,12 @@ gui      = ["dep:eframe", "dep:egui", "dep:fontdb", "dep:webbrowser"]
 # Linux Secret Service).  Optional so a stripped-down CLI build can skip
 # the libdbus dependency on Linux.
 keychain = ["dep:keyring"]
-# DNS-side checks (MX / SPF / DMARC / A / PTR) for the Diagnose tab and
+# DNS-side checks (MX / SPF / DMARC / DKIM) for the Diagnose tab and
 # the `smtp-test-tool dns <domain>` CLI subcommand.  Pulls in hickory-
 # resolver 0.26 and a single-threaded tokio runtime that we spin up
 # on-demand for each audit; the rest of the codebase stays sync.
-dns      = ["dep:hickory-resolver", "dep:tokio"]
+# `base64` decodes DKIM public keys so we can measure RSA key strength.
+dns      = ["dep:hickory-resolver", "dep:tokio", "dep:base64"]
 # OAuth2 device-code flow (RFC 8628) for Microsoft 365 mailboxes that
 # have legacy Basic Auth disabled.  Adds ureq + serde_json; no extra
 # tokio because device-code is a single POST + a polling loop.
@@ -118,6 +119,10 @@ hickory-resolver = { version = "0.26", optional = true, default-features = false
 # nothing else - the smallest feature set we can still build hickory
 # against.
 tokio     = { version = "1",   optional = true, default-features = false, features = ["rt", "time", "net"] }
+# Decodes the base64 DKIM public key (`p=` tag) so the audit can measure
+# RSA modulus strength and spot weak (<1024-bit) keys.  Tiny, no_std-
+# capable, already vetted in our tree; pulled in only by the `dns` feature.
+base64    = { version = "0.22", optional = true }
 
 # OAuth2 device-code flow.  ureq is sync + rustls (matches our wider
 # 'no openssl' stance); serde_json parses the OAuth token responses.

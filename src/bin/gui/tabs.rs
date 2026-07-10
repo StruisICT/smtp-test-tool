@@ -528,6 +528,27 @@ pub(crate) enum OauthJobMsg {
     Failed(String),
 }
 
+/// Turn the DKIM-selectors text box into the selector list to probe.
+/// Blank input falls back to the common-selector list so a user who
+/// doesn't know their selector still gets a useful probe.
+#[cfg(feature = "dns")]
+fn parse_dkim_selectors(input: &str) -> Vec<String> {
+    let explicit: Vec<String> = input
+        .split([',', ' ', '\t'])
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .map(str::to_string)
+        .collect();
+    if explicit.is_empty() {
+        smtp_test_tool::dns::COMMON_DKIM_SELECTORS
+            .iter()
+            .map(|s| s.to_string())
+            .collect()
+    } else {
+        explicit
+    }
+}
+
 #[cfg(feature = "dns")]
 pub(crate) fn tab_dns(ui: &mut egui::Ui, a: &mut App) {
     ui.label(t("ui.dns.intro"));
@@ -573,12 +594,15 @@ pub(crate) fn tab_dns(ui: &mut egui::Ui, a: &mut App) {
             .clicked()
         {
             let domain = a.dns_domain.trim().to_string();
+            let selectors = parse_dkim_selectors(&a.dns_dkim_selectors);
             let (tx, rx) = std::sync::mpsc::channel();
             a.dns_rx = Some(rx);
             a.dns_running = true;
             let ctx = ui.ctx().clone();
             std::thread::spawn(move || {
-                let res = smtp_test_tool::dns::audit_domain(&domain).map_err(|e| e.to_string());
+                let refs: Vec<&str> = selectors.iter().map(String::as_str).collect();
+                let res = smtp_test_tool::dns::audit_domain_selectors(&domain, &refs)
+                    .map_err(|e| e.to_string());
                 let _ = tx.send(DnsJobResult { domain, res });
                 ctx.request_repaint();
             });
@@ -588,6 +612,17 @@ pub(crate) fn tab_dns(ui: &mut egui::Ui, a: &mut App) {
             a.dns_report = None;
             a.dns_hints.clear();
         }
+    });
+
+    // DKIM selectors: optional.  Blank = probe the common-selector list.
+    ui.horizontal(|ui| {
+        ui.label(t("ui.dns.dkim_selectors"));
+        ui.add_enabled(
+            !a.dns_running,
+            egui::TextEdit::singleline(&mut a.dns_dkim_selectors)
+                .hint_text(t("ui.dns.dkim_hint"))
+                .desired_width(280.0),
+        );
     });
 
     ui.add_space(8.0);

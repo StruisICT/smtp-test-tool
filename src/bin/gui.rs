@@ -88,6 +88,11 @@ struct App {
     /// GUI state via eframe's storage.
     #[cfg(feature = "dns")]
     dns_domain: String,
+    /// DKIM selectors typed into the DNS tab (space/comma separated).
+    /// Empty means "probe the common-selector list".  Persisted with
+    /// the rest of the GUI state.
+    #[cfg(feature = "dns")]
+    dns_dkim_selectors: String,
     /// Last completed DNS audit + its hints.  None until the user has
     /// clicked "Audit" at least once.
     #[cfg(feature = "dns")]
@@ -249,6 +254,8 @@ impl App {
             diagnose_hints: Vec::new(),
             #[cfg(feature = "dns")]
             dns_domain: String::new(),
+            #[cfg(feature = "dns")]
+            dns_dkim_selectors: String::new(),
             #[cfg(feature = "dns")]
             dns_report: None,
             #[cfg(feature = "dns")]
