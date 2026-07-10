@@ -249,44 +249,40 @@ While the version is `0.y.z` the public API is **not** stable
   `packaging/`, auto-refreshed by `.github/workflows/release.yml`.
 - **Default features:** `gui`, `keychain`, `dns`, `oauth`.
 
-### Shipped (as of v0.2.0)
+### Shipped (as of v0.2.1)
 
 - SMTP (lettre) + hand-rolled IMAP / POP3 over rustls, full wire trace.
 - IT-actionable diagnostics (M365 error-code translation).
 - 11 provider presets; TOML profiles; OS-keychain credential storage.
-- DNS audit (MX / SPF / DMARC + hints), CLI `dns` + GUI **DNS check**.
+- DNS audit (MX / SPF / DMARC / **DKIM** + hints), CLI `dns` + GUI
+  **DNS check**.  DKIM (v0.2.1): selector-driven probing with a
+  `COMMON_DKIM_SELECTORS` fallback, RSA key-strength via a DER walk of
+  the `p=` SPKI, hints for revoked / weak / 1024-bit / testing-mode
+  keys; CLI `--dkim-selector` / `--no-dkim`, GUI selectors field.
 - M365 OAuth2 device-code flow (RFC 8628), CLI `oauth-login` + GUI.
 - 36 locales / 11 scripts, OS dark/light follow, WCAG 2.2 AAA, AccessKit.
 
-### In flight (`## [Unreleased]` in CHANGELOG.md)
+### In flight
 
-- **DKIM diagnostic** — DNS audit now probes `<selector>._domainkey`
-  records, measures RSA key strength (DER walk of the `p=` SPKI) and
-  flags revoked / weak / 1024-bit / testing-mode keys. New
-  `DkimRecord`, `audit_domain_selectors()`, `COMMON_DKIM_SELECTORS`,
-  CLI `--dkim-selector` / `--no-dkim`, GUI selectors field. Adds the
-  `base64` 0.22 dep under the `dns` feature. Done + green (13 new
-  tests); the 9 new UI strings are English-only (tracked in
-  `i18n.rs::PENDING_TRANSLATION`).
-- Org/brand migration `Struis112` → `StruisICT` (repo, Scoop bucket,
-  Homebrew tap). The WinGet PR was **withdrawn** during the move and
-  needs re-submitting under the `StruisICT` publisher.
+- **WinGet re-submission** — `microsoft/winget-pkgs#400429` (v0.2.1,
+  under the `StruisICT` publisher) is open and awaiting the Microsoft
+  validation bot + moderator approval.  Submitted from the
+  `Struis112/winget-pkgs` fork; hash/URL/layout verified and
+  `winget validate` passed.  The withdrawn 0.2.0 PR is superseded.  If
+  the bot asks for a Sandbox install test, that step still needs a
+  Windows desktop (this host is a headless Server build).
 
 ### Next up (suggested order — confirm with the maintainer)
 
-1. Cut a release for the migration + DKIM changes (bump version — DKIM
-   is a backward-compatible feature add, so PATCH → **0.2.1** under the
-   0.x discipline; tag, let CI publish), then re-submit the WinGet PR
-   (`packaging/README.md` has the recipe).
-2. More DNS diagnostics: MTA-STS / TLS-RPT / BIMI (each a natural
+1. More DNS diagnostics: MTA-STS / TLS-RPT / BIMI (each a natural
    follow-up to the SPF/DMARC/DKIM audit in `src/dns.rs`).
-
-> **Heads-up for whoever runs `cargo deny` next:** it currently FAILS
-> on `RUSTSEC-2026-0192` (`ttf-parser` unmaintained, pulled transitively
-> by `fontdb`, the GUI font-discovery dep). This is unrelated to DKIM
-> and predates it. Decide separately: ignore it in `deny.toml` with a
-> rationale, or migrate `fontdb`→`skrifa`/alternative. `bans`,
-> `licenses`, and `sources` all still pass.
+2. Translate the 9 English-only DNS/OAuth UI strings tracked in
+   `i18n.rs::PENDING_TRANSLATION` and shrink that allowlist.
+3. Consider migrating `fontdb`→`skrifa`/alternative to drop the
+   unmaintained `ttf-parser` (currently a documented `deny.toml`
+   ignore for RUSTSEC-2026-0192, alongside the two build-time-only
+   `quick-xml` DoS advisories 0194/0195; see `deny.toml` for the
+   rationale + revisit conditions).
 
 ### Verify-green checklist (run before any commit)
 
