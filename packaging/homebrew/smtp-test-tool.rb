@@ -3,18 +3,18 @@
 class SmtpTestTool < Formula
   desc "Cross-platform SMTP / IMAP / POP3 connectivity tester with IT-actionable diagnostics"
   homepage "https://github.com/StruisICT/smtp-test-tool"
-  version "0.2.0"
+  version "0.2.1"
   license any_of: ["MIT", "Apache-2.0"]
 
   if OS.mac? && Hardware::CPU.arm?
-    url "https://github.com/StruisICT/smtp-test-tool/releases/download/v0.2.0/smtp-test-tool-aarch64-apple-darwin.tar.gz"
-    sha256 "9c028f54550c3039ddcc667473d74098674d3788b804e527105d2448718d3383"
+    url "https://github.com/StruisICT/smtp-test-tool/releases/download/v0.2.1/smtp-test-tool-aarch64-apple-darwin.tar.gz"
+    sha256 "29706f8292ac109a46453f2843c16f6c3edb9721f9f849ef16dbde6e29316bbd"
   elsif OS.mac?
-    url "https://github.com/StruisICT/smtp-test-tool/releases/download/v0.2.0/smtp-test-tool-x86_64-apple-darwin.tar.gz"
-    sha256 "3e70c7e39893463104e929947e02b31d0a9d034630af31831ea20f71ac211e27"
+    url "https://github.com/StruisICT/smtp-test-tool/releases/download/v0.2.1/smtp-test-tool-x86_64-apple-darwin.tar.gz"
+    sha256 "6a0e2e1da1ddb71a58499a920588724680bd62d9eb4077bd6360b9062520504d"
   elsif OS.linux?
-    url "https://github.com/StruisICT/smtp-test-tool/releases/download/v0.2.0/smtp-test-tool-x86_64-unknown-linux-gnu.tar.gz"
-    sha256 "94601961044b41000f12506fcf1d9525fe8b73244e34fd4ab961e7199fe74cd1"
+    url "https://github.com/StruisICT/smtp-test-tool/releases/download/v0.2.1/smtp-test-tool-x86_64-unknown-linux-gnu.tar.gz"
+    sha256 "f517ba4737f91984fc01b4e7d5673d9ef6fa7431431ceaad87a0dad0b2407fb4"
   end
 
   def install
